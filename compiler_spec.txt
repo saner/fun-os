@@ -1,0 +1,107 @@
+Tagged pointer representation
+
+Atom      
+====
+-- mask ---     AAAA0
+Fixnum         NNNN10
+Boolean          B100
+  #f             0100
+  #t             1100
+'()              1000
+Char     CCCCCCCC1000 # easy to convert char <-> int, just shift
+
+
+
+Refrence type 
+==============
+-- mask ---   RRRRRRR1
+Pair          00000011
+Closure       00000101
+Symbol        00001001
+Vector/Record 00010001
+String        00100001
+
+
+Prolog & Epilog
+======
+
+Stack is of TYPE FULL
+
+Caller
+  * Save r0-r3 and r12 on the stack
+  * Set arguments 0-3 in register r0-r3 and the rest arguments on the stack
+  *  -- CALL --
+  * Subtract from value of the SP number of arguments
+  * Restore registers r0-r3 and r12 from the stack
+
+
+Calling
+  * Save LR on the stack
+  * Save non scratch registers r4-r9
+  * Save SL register on the stack
+  * Save FP on the stack
+  * Set new FP to current value of SP
+  * -- DO --
+  * Load value of FP to SP
+  * Restore SL register
+  * Restore r4-r9 registers
+  * Restore LR register
+  * Return to the caller
+
+
+Frame stack:
+-----------------------
+|       arg_n         |
+|       ....          |
+|       arg_5         |
+|       arg_4         |
+|        LR           |
+|        R4           |
+|       ....          |
+|        R9           |
+|        SL           |
+|        FP <- new FP |
+|       ....          |
+-----------------------
+
+====
+Scheme Spec
+
+* stack-allocated call frames
+* call/cc copies the stack
+* stack copy my replicate locations
+* display (flat) closures
+* * Static chain replaced
+* * [ code | value1 | value2 | value2 ]
+* * Variable - might replicate locations
+* * add an indirect for assigned variables
+
+
+* equality
+** eq? It compares addresses of two objects and returns #t if they are same.
+** eqv? It compares types and values of two object stored in the memory space. 
+** equal? It is used to compare sequences such as list or string.
+
+-- type checking
+-- pair? It returns #t if the object consists of cons cells (or a cons cell).
+-- list? It returns #t if the object is a list. Be careful in that '() is a list but not a pair.
+-- null? It returns #t if the object is '().
+-- symbol? It returns #t if the object is a symbol.
+-- char? It returns #t if the object is a character. 
+-- string? It returns #t if the object is a string. 
+-- number? It returns #t if the object is a number.
+-- complex? It returns #t if the object is a complex number.
+-- real? It returns #t if the object is a real number
+-- rational? It returns #t if the object is a rational number.
+-- integer? It returns #t if the object is an integral
+-- exact? It returns #t if the object is not a floating point number.
+-- inexact? It returns #t if the object is a floating point number.
+
+-- cond expression
+(cond
+  (predicate_1 clauses_1)
+  (predicate_2 clauses_2)
+    ......
+  (predicate_n clauses_n)
+  (else        clauses_else))
+
