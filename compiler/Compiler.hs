@@ -10,6 +10,7 @@ import Debug.Trace
 
 import qualified ArmInstructions as Arm
 import SchemeDataTypes
+import CompUtils
 
 --------------------------------------------------------------------------------
 -- Data types used by the compiler
@@ -101,13 +102,18 @@ loadVarToRegister ident desReg restRegs = do
           if desReg == reg
             then return (desReg, [])
             else do
+              -- free reg
+              isUsed <- inUseReg desReg
+              (_, freeRegCode) <- if isUsed
+                                    then moveRegToStack desReg
+                                    else return ("", [])
               -- update position of var
               (regState, varState, stackPtr, some) <- get
               let newVarState = Map.insert ident (LocReg desReg) varState
               let newRegState1 = Map.insert reg Nothing regState
               let newRegState2 = Map.insert desReg (Just ident) newRegState1
               put (newRegState2, newVarState, stackPtr, some)
-              return (desReg, [ Arm.MOV desReg (Arm.O2ShReg reg Arm.NoShift) ])
+              return (desReg, freeRegCode ++ [ Arm.MOV desReg (Arm.O2ShReg reg Arm.NoShift) ])
     Just (LocRegAndStack reg stackPos) ->
       -- already in register
       case desReg of
@@ -116,13 +122,18 @@ loadVarToRegister ident desReg restRegs = do
           if desReg == reg
             then return (desReg, [])
             else do
+              -- free reg
+              isUsed <- inUseReg desReg
+              (_, freeRegCode) <- if isUsed
+                                    then moveRegToStack desReg
+                                    else return ("", [])
               -- update position of var
               (regState, varState, stackPtr, some) <- get
               let newVarState = Map.insert ident (LocRegAndStack desReg stackPos) varState
               let newRegState1 = Map.insert reg Nothing regState
               let newRegState2 = Map.insert desReg (Just ident) newRegState1
               put (newRegState2, newVarState, stackPtr, some)
-              return (desReg, [ Arm.MOV desReg (Arm.O2ShReg reg Arm.NoShift) ])
+              return (desReg, freeRegCode ++ [ Arm.MOV desReg (Arm.O2ShReg reg Arm.NoShift) ])
     Just (LocStack stackPos) -> do
       -- get register
       (reg, getRegC) <- case desReg of
@@ -247,18 +258,6 @@ createLabel name = do
   put (regState, varState, stackPtr, (lastVarNo, newLblNo))
   return $ ".L" ++ name ++ "_" ++ (show newLblNo)
 
--- clean name
--- some identifiers are not allowed in assemblers
-cleanName :: String -> String
-cleanName [] = []
-cleanName (l:ls) =
-  -- "!#$%&|+-*/:<>=?@^_~,."
-  let cL = case l of
-            '!' -> "EM"
-            '?' -> "QM"
-            _ -> [l]
-  in cL ++ (cleanName ls)
-
 --------------------------------------------------------------------------------
 -- Tagging operations
 
@@ -370,7 +369,7 @@ callFun ident args = do
     loadArgsToRegs (vn:vns) (reg:regs) = do
       (_, code) <- loadVarToRegister vn (Just reg) []
       restC <- loadArgsToRegs vns regs
-      return $ [ Arm.Comment $ "loading to reg arg " ++ (show $ 4 - length (vn:vns)) ] ++
+      return $ [ Arm.Comment $ "loading to reg arg " ++ (show $ length (vn:vns)) ] ++
                code ++ restC
     loadArgsToStack :: [Name] -> Arm.Register -> Env ArmCode
     loadArgsToStack [] _ = return []
@@ -564,6 +563,8 @@ compile (List (Atom "if" : pred : trueBlock : falseBlock : [])) = do
   let trueMoveC = [ Arm.MOV retReg (Arm.O2ShReg trueBLdReg Arm.NoShift) ]
   -- dump regs
   trueDumpC <- dumpUsedRegs Arm.NoReg
+  let trueResetSP = [ Arm.MOV Arm.SP (Arm.O2ShReg Arm.FP Arm.NoShift),
+                      Arm.Sub Arm.SP Arm.SP (Arm.O2ShImm envStackPtr) ]
   -- we returned to the state before executing then block
   -- restoring stack position to before executing then block
   -- is ok, because stack might have grown only with temporary vars
@@ -587,6 +588,8 @@ compile (List (Atom "if" : pred : trueBlock : falseBlock : [])) = do
   -- restore state before executing else block (and whole if-then-else block)
   -- dump regs
   falseDumpC <- dumpUsedRegs Arm.NoReg
+  let falseResetSP = [ Arm.MOV Arm.SP (Arm.O2ShReg Arm.FP Arm.NoShift),
+                      Arm.Sub Arm.SP Arm.SP (Arm.O2ShImm envStackPtr) ]
   (envReg3, envVar3, envStackPtr3, envCountPtr3) <- get
   put (envReg, envVar, envStackPtr, envCountPtr3)
 
@@ -607,6 +610,8 @@ compile (List (Atom "if" : pred : trueBlock : falseBlock : [])) = do
           trueMoveC ++
           [ Arm.Comment "then dump regs" ] ++
           trueDumpC ++
+          [ Arm.Comment "then reset SP" ] ++
+          trueResetSP ++
           [ Arm.B Arm.CondNO labelEnd ] ++
           [ Arm.Label labelElse ] ++
           [ Arm.Comment "else block" ] ++
@@ -617,6 +622,8 @@ compile (List (Atom "if" : pred : trueBlock : falseBlock : [])) = do
           falseMoveC ++
           [ Arm.Comment "else dump regs" ] ++
           falseDumpC ++
+          [ Arm.Comment "else reset SP" ] ++
+          falseResetSP ++
           [ Arm.Label labelEnd ])
   where
     dumpUsedRegs retReg = do
@@ -881,7 +888,7 @@ addRegisters = do
   where
     free reg = (reg, Nothing)
 
-programHeader = [ Arm.Special ".global scheme_entry" ]
+programHeader = []
   
 compileCode :: [SchemeInst] -> Env [Arm.ArmInstruction]
 compileCode body = do

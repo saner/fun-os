@@ -1,9 +1,41 @@
 (comment "declarations of C functions")
-(decl-c-fun print_int void (int))
-(decl-c-fun print_bool void (bool))
+(c-fun print-int void (int))
+(c-fun print-bool void (bool))
 
 
-(define (scheme_entry)
+(comment "declarations of global functions")
+(global-fun scheme-entry)
+
+(define (scheme-entry)
+  (dtcm-stack-size 0))
+
+
+
+(comment "dtcm section has 16KB")
+(comment "One fun frame takes 52 bytes = 13 variables * 4 bytes")
+(comment "the function is called 242 times, the whole stack is 12584 bytes")
+(define (dtcm-stack-size i)
+  (begin (print-int i) (dtcm-stack-size (+ i 1))))
+
+
+(define (power6 i)
+  (if (<= i 1)
+    1
+    (begin (print-int i) (power (- i 1)))))
+
+(define (power i)
+  (if (<= i 1)
+    1
+    (begin (print-int i) (* i (power (- i 1))))))
+
+(define (poweri i)
+  5)
+
+(define (power2 i)
+  (cond ((<= i 1) 1)
+        (else (* i (power (- i 1))))))
+
+(define (scheme_entry2)
   (cond ((< 2 1) 1)
         ((eq? 3 2) 2)
         (else (print_bool #f))))

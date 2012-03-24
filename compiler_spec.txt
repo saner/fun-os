@@ -8,18 +8,20 @@ Boolean          B100
   #f             0100
   #t             1100
 '()              1000
-Char     CCCCCCCC1000 # easy to convert char <-> int, just shift
+Char     CCCCCCCC1000 // #\A #\7 , easy to convert char <-> int, just shift
 
+
+
+Symbol        00000101
 
 
 Refrence type 
 ==============
 -- mask ---   RRRRRRR1
-Pair          00000011
-Closure       00000101
-Symbol        00001001
-Vector/Record 00010001
-String        00100001
+Pair          00000001
+Closure       00000011
+Vector/Record 00000101
+String        00000111
 
 
 Prolog & Epilog
@@ -64,7 +66,182 @@ Frame stack:
 |       ....          |
 -----------------------
 
+
 ====
+Lambdas
+
+(lambda (x y z)
+  (let ((f (lambda (x y a b)
+              (+ (* a x) (* b y)))))
+    (- (f x y 1 2) (f x y 3 4))))
+
+Lambda lifting:
+(lambda (x y z)
+  (let ((f (lambda (a b)
+            (+ (* a x) (* b y)))))
+    f))
+
+Closure:
+(lambda (x y z)
+  (let ((f (vector
+            (lambda (self a b)
+              (+ (* a (vector-ref self 1))
+                 (* b (vector-ref self 2))))
+            x
+            y)))
+    (- ((vector-ref f 0) f 1 2)
+       ((vector-ref f 0) f 3 4))))
+
+====
+Tail call
+
+A tail position in our language is defined recursively as follows:
+* The body of a procedure is in tail position.
+* If a let expression is in tail position, then the body of the let is in tail position.
+* If the conditional expression (if test conseq altern) is in tail position, then the conseq and altern branches are also in tail position.
+* All other expressions are not in tail position.
+
+
+====
+Implementations
+
+GC
+* First idea
+* handle section & storage section
+* All references to an object go through its handle.
+[ ... |   |     | ... ] - handle section
+
+       |      |
+       v      v
+[... | 1  |  string               | ... ]
+
+
+Scheme objects:
+* Immediate
+* Allocated
+
+Constants:
+* constant expression replaced by reference to a fresh variable
+(f x '(1 2))
+  |
+  v
+(define cst32 (cons 2 '()))
+(define cst33 (cons 1 cst32))
+
+* encoding the program constants into a byte-vector descriptor that is integrated with the executable
+"biz"
+(1 2)          -> 0, 2, 52        -> [... | 16 | 17 | 18 | ...]
+#(a #t)                                      |    |    |
+                                             |    |   #(a #t)
+                                             |  (1 2)
+                                           "biz"
+Example:
+Const 0: ("biz"), Const 1: (#f 2), Const 2: "biz"
+Obj. 0: 2          Obj. 3: "biz"     Obj. 5: #f
+Obj. 1: ()         Obj. 4: (3 . 2)   Obj. 6: (5 . 2)
+Obj. 2: (0 . 1)
+
+Const 0: Obj. 4, Const 1: Obj. 6, Const 2: Obj. 3
+
+
+Symbols
+– Asymbol is a two-field object: one reference to its name, which is a string, and one link
+to the next symbol in the table. The whole table is a kind of list of strings but its skeleton
+is made of symbols instead of pairs.
+– Asymbol is a variable-sized object that directly contains its name and a link to the next
+symbol.
+– Asymbol is an index into a table of names. Thisway, the symbol becomes a non-allocated
+object and the table of names can be represented compactly as a vector of strings.
+
+
+
+Heap memory
+* 8-byte boundaries (double-word boundaries)
+* * gives 3 bits for tagging
+
+Design Decisions
+
+Traditional Scheme implementation?
+* heap-allocated call frames
+* linked environments
+* fast closure-creation, continuations
+* slow procedure calls, variable references
+
+Traditional Algol/C implementation?
+* stack-allocated call frames
+* variables in frames or registers
+* fast procedure calls, variable references
+* closures, continuations problematic
+
+
+Stack allocated call frames
+* call/cc copies the stack
+* throw reinstates the stack
+
+Display (Flat) Closures
+* bank of pointers replacing static chain
+* closure
+* * [code_ptr | value | value | value]
+* * code_ptr - label
+
+Assignment Conversion
+Observations:
+* problem only for assigned variables
+* most variables are never assigned (in well-written Scheme code)
+(Now obvious) solution:
+* add an indirect for assigned variables
+* don’t create multiple copies
+* instead store each in heap-allocated box
+
+Costs:
+* more continuation overhead
+* potentially more closure-creation overhead
+* assignment overhead (or not)
+Benefits:
+* less procedure-call overhead
+* less variable reference overhead
+* closures don’t hold onto garbage
+
+
+Assignment another idea:
+
+(let ((f (lambda (c)
+            (cons (lambda (v) (set! c v))
+                  (lambda () c)))))
+  (let ((p (f 0)))
+    ((car p) 12)
+    ((cdr p))))
+=>
+(let ((f (lambda (t0)
+          (let ((c (vector t0)))
+            (cons (lambda (v) (vector-set! c 0 v))
+                (lambda () (vector-ref c 0)))))))
+  (let ((p (f 0)))
+    ((car p) 12)
+    ((cdr p))))
+
+
+
+Stop-and-copy collector
+
+
+=====================
+Compilation process
+
+[ prog.scm ]
+     |
+     | SchemeCompiler
+     |
+     v
+[ prog.s ]
+     |
+     | arm-eabi-gcc + DevKit + sandbox
+     |
+     v
+[ sandbox.nds ]
+
+
+============
 Scheme Spec
 
 * stack-allocated call frames
@@ -75,6 +252,11 @@ Scheme Spec
 * * [ code | value1 | value2 | value2 ]
 * * Variable - might replicate locations
 * * add an indirect for assigned variables
+* (load "test.scm")
+* (cons 1 2) - (pair? l) - (car l) - (cdr l)
+* global var
+* * (define az 13)
+* tail call
 
 
 * equality
@@ -82,6 +264,7 @@ Scheme Spec
 ** eqv? It compares types and values of two object stored in the memory space. 
 ** equal? It is used to compare sequences such as list or string.
 
+-- reserved names
 -- type checking
 -- pair? It returns #t if the object consists of cons cells (or a cons cell).
 -- list? It returns #t if the object is a list. Be careful in that '() is a list but not a pair.
