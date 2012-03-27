@@ -1,4 +1,12 @@
 Tagged pointer representation
+8-bytes boundaries => 000000TTT => 3 bits for a tag => 8 possibilities
+start with SP = 0x023ff000ldr R0, =__end__
+
+heap start __end__
+heap start __ewram_end
+beginning heap ldr R0, =__end__
+heap end __eheap_end 
+
 
 Atom      
 ====
@@ -127,6 +135,7 @@ Constants:
   v
 (define cst32 (cons 2 '()))
 (define cst33 (cons 1 cst32))
+(f x cst33)
 
 * encoding the program constants into a byte-vector descriptor that is integrated with the executable
 "biz"
@@ -145,13 +154,9 @@ Const 0: Obj. 4, Const 1: Obj. 6, Const 2: Obj. 3
 
 
 Symbols
-– Asymbol is a two-field object: one reference to its name, which is a string, and one link
-to the next symbol in the table. The whole table is a kind of list of strings but its skeleton
-is made of symbols instead of pairs.
-– Asymbol is a variable-sized object that directly contains its name and a link to the next
-symbol.
-– Asymbol is an index into a table of names. Thisway, the symbol becomes a non-allocated
-object and the table of names can be represented compactly as a vector of strings.
+– A symbol is a two-field object: one reference to its name, which is a string, and one link to the next symbol in the table. The whole table is a kind of list of strings but its skeleton is made of symbols instead of pairs.
+– A symbol is a variable-sized object that directly contains its name and a link to the next symbol.
+– A symbol is an index into a table of names. This way, the symbol becomes a non-allocated object and the table of names can be represented compactly as a vector of strings.
 
 
 

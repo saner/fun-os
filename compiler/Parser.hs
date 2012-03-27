@@ -12,7 +12,7 @@ import Control.Monad
 -- (list 1 2 3)
 
 symbol :: Parser Char
-symbol = oneOf "!#$%&|+-*/:<>=?@^_~,."
+symbol = oneOf "!#$%&|+-*/:<>=?@^_~,.[]{}"
 
 
 parseString :: Parser SchemeInst
