@@ -7,6 +7,13 @@
 (global-fun scheme-entry)
 
 (assembler (scheme-entry mem_addr mem_size)
+  (comment "prologue start")
+  (STMFD SP!, {LR})
+  (STMFD SP!, {R4, R5, R6, R7, R8, R9})
+  (STMFD SP!, {SL})
+  (STMFD SP!, {FP})
+  (MOV FP, SP)
+  (comment "prologue end")
   (MOV R2, SP)
   (comment "setting stack beginning to SP")
   (MOV SP, R0)
@@ -16,7 +23,14 @@
   (STR R0, [SL])
   (comment "running internal function")
   (BL internal_scheme_entry)
-  (BX LR))
+  (comment "epilog start")
+  (MOV SP, FP)
+  (LDMFD SP!, {FP})
+  (LDMFD SP!, {SL})
+  (LDMFD SP!, {R4, R5, R6, R7, R8, R9})
+  (LDMFD SP!, {LR})
+  (BX LR)
+  (comment "epilog end"))
   
 (assembler (alloc-mem mem_size)
   (comment "allocates specified memory size on the heap")
@@ -214,9 +228,24 @@
   (BX LR))
 
 (define (internal-scheme-entry)
-  (begin
-    (print-int (vector-ref (vector-set! (make-vector 3) 1 9) 1))
-    (test-vector (make-vector 9) (cons 100 200) (make-vector 6))))
+  (test-let-2))
+
+(define (test-let-2)
+  (let ((v1 (make-vector 4)) (v2 (make-vector 5)))
+    (begin 
+      (vector-set! v1 0 0)
+      (vector-set! v1 1 1)
+      (vector-set! v1 2 2)
+      (vector-set! v1 3 3)
+      (vector-set! v2 0 10)
+      (vector-set! v2 1 20)
+      (vector-set! v2 2 30)
+      (vector-set! v2 3 40)
+      (+ (vector-ref v1 3) (vector-ref v2 2)))))
+
+(define (test-let)
+  (let ((a 1) (b 5))
+    (+ a b)))
 
 (define (test-vector v1 co v2)
   (begin

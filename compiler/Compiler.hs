@@ -184,13 +184,16 @@ getFreeRegister restRegs = do
                   moveToStack)
 
 -- get new free reg and create new var in it
-getRegWithNewVar :: [Arm.Register] -> Env (Name, Arm.Register, ArmCode)
-getRegWithNewVar restRegs = do
+getRegWithNewVar :: (Maybe Name) -> [Arm.Register] -> Env (Name, Arm.Register, ArmCode)
+getRegWithNewVar vName restRegs = do
   (reg, code) <- getFreeRegister restRegs
   (regState, varState, stackPtr, (lastVarNo, lastLblNo)) <- get
   -- generate new var name
-  let newVarNo = lastVarNo + 1
-  let varName = "_var" ++ (show newVarNo)
+  let (varName, newVarNo) = case vName of
+                              Nothing ->
+                                    let no = lastVarNo + 1
+                                    in ("_var" ++ (show no), no)
+                              Just name -> (name, lastVarNo)
   -- add info to state
   let newVarState = Map.insert varName (LocReg reg) varState
   let newRegState = Map.insert reg (Just varName) regState
@@ -328,7 +331,7 @@ callFun ident args = do
   -- call fun, always result is in R0
   let callFunC = [ Arm.BL Arm.CondNO (cleanName ident) ]
   -- result in R0 move to other register
-  (retName, retReg, retCode) <- getRegWithNewVar [ Arm.R0 ]
+  (retName, retReg, retCode) <- getRegWithNewVar Nothing [ Arm.R0 ]
   let mvValR0ToRet = [ Arm.MOV retReg (Arm.O2ShReg Arm.R0 Arm.NoShift) ]
   -- reset SP
   let restStackC = if length args > 4
@@ -491,7 +494,7 @@ compile (List (Atom "define" : List (Atom name : args) : body : [])) = do
 
 -- Constants
 compile (Number num) = do
-  (name, reg, code) <- getRegWithNewVar []
+  (name, reg, code) <- getRegWithNewVar Nothing []
   return $ (name, reg, 
             [ Arm.Comment $ "int " ++ (show num) ++ " with name " ++ name ] ++
             code ++
@@ -499,7 +502,7 @@ compile (Number num) = do
             tagReg reg TInt)
 
 compile (Bool isTrue) = do
-  (name, reg, code) <- getRegWithNewVar []
+  (name, reg, code) <- getRegWithNewVar Nothing []
   let boolToInt = if isTrue
                     then 1
                     else 0
@@ -541,7 +544,7 @@ compile (List (Atom "if" : pred : trueBlock : falseBlock : [])) = do
 
   -- compile blocks
   -- return register
-  (retName, retReg, retRegC) <- getRegWithNewVar [ predReg ]
+  (retName, retReg, retRegC) <- getRegWithNewVar Nothing [ predReg ]
   -- dump all registers
   -- so we can store state of the stack (current position)
   -- and all vars are on the stack
@@ -648,7 +651,7 @@ compile (List (Atom "not" : pred : [])) = do
   labelFalse <- createLabel "false"
   labelEnd <- createLabel "end"
 
-  (retName, retReg, retRegC) <- getRegWithNewVar [ predReg ]
+  (retName, retReg, retRegC) <- getRegWithNewVar Nothing [ predReg ]
 
 
   return (retName, retReg,
@@ -676,7 +679,7 @@ compile (List (Atom "and" : pred1 : pred2 : [])) = do
   labelFalse <- createLabel "false"
   labelEnd <- createLabel "end"
 
-  (retName, retReg, retRegC) <- getRegWithNewVar [ pred1Reg, pred2Reg ]
+  (retName, retReg, retRegC) <- getRegWithNewVar Nothing [ pred1Reg, pred2Reg ]
 
 
   return (retName, retReg,
@@ -707,7 +710,7 @@ compile (List (Atom "or" : pred1 : pred2 : [])) = do
   labelFalse <- createLabel "false"
   labelEnd <- createLabel "end"
 
-  (retName, retReg, retRegC) <- getRegWithNewVar [ pred1Reg, pred2Reg ]
+  (retName, retReg, retRegC) <- getRegWithNewVar Nothing [ pred1Reg, pred2Reg ]
 
 
   return (retName, retReg,
@@ -776,6 +779,32 @@ compile (List (Atom "assembler" : blocks )) = do
       restSt <- comp rest
       return $ instSt : restSt
 
+ 
+-- compile directly function in assembler
+compile (List (Atom "let" : List varBlock : codeBlock : [] )) = do
+  varBlockC <-compileVarBlock varBlock
+  (codeBlockVar, codeBlockReg, codeBlockC) <- compileCodeBlock codeBlock
+  return (codeBlockVar, codeBlockReg, 
+          [ Arm.Comment "let block start" ] ++ 
+          varBlockC ++ codeBlockC ++
+          [ Arm.Comment "let block end" ])
+
+  where
+    compileVarBlock [] = return []
+    compileVarBlock (List (Atom varName : varVal : []) : varRest) = do
+      (varN, varR, varC) <- compile varVal
+      (name, reg, regC) <- getRegWithNewVar (Just varName) [varR]
+      restC <- compileVarBlock varRest
+      return $ [ Arm.Comment "let block var def start" ] ++
+               varC ++ regC ++
+               [ Arm.MOV reg (Arm.O2ShReg varR Arm.NoShift) ] ++ 
+               [ Arm.Comment "let block var def end" ] ++
+               restC
+    compileCodeBlock block = compile block
+
+      
+      
+
 
 -- If it was not recognized it must be a function
 compile (List (Atom name : args)) = do
@@ -783,7 +812,7 @@ compile (List (Atom name : args)) = do
 
 
 compile (List []) = do
-  (retName, retReg, retRegC) <- getRegWithNewVar []
+  (retName, retReg, retRegC) <- getRegWithNewVar Nothing []
   return (retName, retReg,
           [ Arm.Comment "List []" ] ++
           retRegC ++
@@ -801,7 +830,7 @@ compileBinOp binOp arg1 arg2 = do
   (arg1Name, arg1Reg, arg1C) <- compile arg1
   (arg2Name, arg2Reg, arg2C) <- compile arg2
 
-  (retName, retReg, retRegC) <- getRegWithNewVar []
+  (retName, retReg, retRegC) <- getRegWithNewVar Nothing []
   (arg1LdReg, arg1LdC) <- loadVarToRegister arg1Name Nothing [ retReg ]
   (arg2LdReg, arg2LdC) <- loadVarToRegister arg2Name Nothing [ retReg, arg1LdReg ]
 
@@ -844,7 +873,7 @@ compileBinComp cond arg1 arg2 = do
   (arg1Name, arg1Reg, arg1C) <- compile arg1
   (arg2Name, arg2Reg, arg2C) <- compile arg2
 
-  (retName, retReg, retRegC) <- getRegWithNewVar []
+  (retName, retReg, retRegC) <- getRegWithNewVar Nothing []
   (arg1LdReg, arg1LdC) <- loadVarToRegister arg1Name Nothing [ retReg ]
   (arg2LdReg, arg2LdC) <- loadVarToRegister arg2Name Nothing [ retReg, arg1LdReg ]
 
