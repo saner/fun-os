@@ -34,7 +34,7 @@ int main(void)
   }
 
   int taggedResult = scheme_entry(scheme_memory, memory_size);
-  int result = taggedResult >> 2;
+  int result = taggedResult >> 3;
 	iprintf("scheme_entry returned: %i", result);
 
 	while(1) {

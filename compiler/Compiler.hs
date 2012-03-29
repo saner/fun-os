@@ -271,7 +271,7 @@ tagReg :: Arm.Register -> TagType -> ArmCode
 
 tagReg reg TInt =
   [ Arm.Comment $ "tagging int, reg " ++ (show reg),
-    Arm.LSL reg reg (Arm.O2NoShImm 2),
+    Arm.LSL reg reg (Arm.O2NoShImm 3),
     Arm.ORR reg reg (Arm.O2ShImm 2) ]
 
 tagReg reg TBool =
@@ -284,7 +284,7 @@ untagReg :: Arm.Register -> TagType -> ArmCode
 
 untagReg reg TInt =
   [ Arm.Comment $ "untagging int, reg " ++ (show reg),
-    Arm.LSR reg reg (Arm.O2NoShImm 2)]
+    Arm.LSR reg reg (Arm.O2NoShImm 3)]
   
 untagReg reg TBool =
   [ Arm.Comment $ "untagging bool, reg " ++ (show reg),
@@ -511,6 +511,16 @@ compile (Bool isTrue) = do
             code ++
             [ Arm.MOV reg (Arm.O2ShImm boolToInt) ] ++
             tagReg reg TBool)
+
+
+-- Empty list
+compile (List (Atom "quote" : List [] : [])) = do
+  (name, reg, code) <- getRegWithNewVar Nothing []
+  return $ (name, reg, 
+            [ Arm.Comment $ "empty list" ++ " with name " ++ name ] ++
+            code ++
+            [ Arm.MOV reg (Arm.O2ShImm 0) ])
+
 
 -- Variable
 compile (Atom varName) = do

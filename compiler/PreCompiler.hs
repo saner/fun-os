@@ -103,15 +103,15 @@ declCFun code =
               [ List [ Atom "comment", String "!!!!!! NOT SUPPORTED !!!!!!" ]]
         untag (TInt, reg) =
           [ List [ Atom "comment", String ("untagging int, reg " ++ (show reg)) ],
-            List [ Atom $ "LSR " ++ (show reg) ++ ", " ++ (show reg) ++ ", #" ++ (show 2) ]]
+            List [ Atom $ "LSR " ++ (show reg) ++ ", " ++ (show reg) ++ ", #" ++ (show 3) ]]
         untag (TBool, reg) =
-          [ List [ Atom "comment" , String ("untagging int, reg " ++ (show reg)) ],
+          [ List [ Atom "comment" , String ("untagging bool, reg " ++ (show reg)) ],
             List [ Atom $ "LSR " ++ (show reg) ++ ", " ++ (show reg) ++ ", #" ++ (show 3) ]]
         untag _ = []
 
         tag (TInt, reg) =
           [ List [ Atom "comment" , String ("tagging int, reg " ++ (show reg)) ],
-            List [ Atom $ "LSL " ++ (show reg) ++ ", " ++ (show reg) ++ ", #" ++ (show 2) ],
+            List [ Atom $ "LSL " ++ (show reg) ++ ", " ++ (show reg) ++ ", #" ++ (show 3) ],
             List [ Atom $ "ORR " ++ (show reg) ++ ", " ++ (show reg) ++ ", #" ++ (show 2) ]]
         tag (TBool, reg) =
           [ List [ Atom "comment" , String ("tagging bool, reg " ++ (show reg)) ],

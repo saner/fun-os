@@ -10,15 +10,13 @@ heap end __eheap_end
 
 Atom      
 ====
--- mask ---     AAAA0
-Fixnum         NNNN10
+-- mask --- 
+Fixnum         NNN010
 Boolean          B100
   #f             0100
   #t             1100
-'()              1000
-Char     CCCCCCCC1000 // #\A #\7 , easy to convert char <-> int, just shift
-
-
+'()               000
+Char     CCCCCCCCC110 // #\A #\7 , easy to convert char <-> int, just shift
 
 Symbol        00000101
 
