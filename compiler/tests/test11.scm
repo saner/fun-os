@@ -46,6 +46,8 @@
   (comment "heap pointer is aligned")
   (MOV R3, R1)
   (comment "move heap pointer")
+  (comment "untag int")
+  (LSR R0, #2)
   (ADD R1, R1, R0)
   (STR R1, [SL])
   (comment "return")
@@ -71,6 +73,9 @@
   (MOV R2, #4)
   (MOV R3, R0)
   (MUL R0, R3, R2)
+  (comment "tag int")
+  (LSL R0, #2)
+  (ORR R0, R0, #2)
   (BL alloc_mem)
   (comment "set length")
   (STR R4, [R0])
@@ -181,6 +186,9 @@
   (MOV R4, R0)
   (MOV R5, R1)
   (MOV R0, #8)
+  (comment "tag int")
+  (LSL R0, #2)
+  (ORR R0, R0, #2)
   (BL alloc_mem)
   (MOV R6, R0)
   (comment "set car")
@@ -228,7 +236,7 @@
   (BX LR))
 
 (define (internal-scheme-entry)
-  (test-let-2))
+  (test-cons-init))
 
 (define (test-let-2)
   (let ((v1 (make-vector 4)) (v2 (make-vector 5)))
@@ -246,6 +254,9 @@
 (define (test-let)
   (let ((a 1) (b 5))
     (+ a b)))
+
+(define (test-vector-init)
+    (test-vector (make-vector 10) (cons 99 9) (make-vector 5)))
 
 (define (test-vector v1 co v2)
   (begin
@@ -268,7 +279,7 @@
     (print-int (vector-ref v2 2))
     (print-int (vector-ref v2 3))))
 
-(define (internal-scheme-entry2)
+(define (test-cons-init)
   (test-cons (cons 1 2) (cons 3 4) (cons 5 6) (cons 7 8)))
 
 (define (test-cons a b c d)
@@ -279,7 +290,8 @@
   (print-int (cdr b))
   (print-int (car c))
   (print-int (cdr c))
-  (print-int (car d))))
+  (print-int (car d))
+  (print-int (cdr d))))
 
 (define (internal-scheme-entry3)
   (begin 
