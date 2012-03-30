@@ -165,8 +165,33 @@ findRemoveGlobalFun (DottedList insts inst) =
       frDecls = (concat $ map snd instsDecls) ++ (snd instDecl)
   in (frInsts, frDecls)
 
+
 -- if was not matched so don't transform instruction
 findRemoveGlobalFun inst = (inst, []) 
+
+-- expand list construct
+-- (list 1 2 3 4)
+listExpansion :: [SchemeInst] -> [SchemeInst]
+
+listExpansion ls = 
+  map expand ls
+
+  where
+    expand (List (Atom "list" : insts)) = 
+      let instsEx = map expand insts
+          instsCons = foldl (\c e -> List (Atom "cons" : e : c : [] ) ) (List (Atom "quote": List [] : [])) (reverse instsEx)
+      in instsCons
+
+    expand (List insts) = 
+      List $ map expand insts
+
+    expand (DottedList insts inst) = 
+      let instsEx = map expand insts
+          instEx = expand inst
+      in DottedList instsEx instEx
+
+    expand inst = inst
+
 
 globalFun code = 
   let instsDecls = map findRemoveGlobalFun code
@@ -188,4 +213,5 @@ preCompileCode code =
   let code1 = map condExpansion code
       code2 = declCFun code1
       code3 = globalFun code2
-  in code3
+      code4 = listExpansion code3
+  in code4

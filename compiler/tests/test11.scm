@@ -236,7 +236,17 @@
   (BX LR))
 
 (define (internal-scheme-entry)
-  (test-let))
+  (test-list-exp))
+
+
+(define (test-list-exp)
+  (let ((ls (list 1 2 3)))
+    (print-int (cdr (cdr (cdr ls))))))
+
+(define (test-cons-complex)
+  (let ((ls (cons 1 (cons 2 3))))
+    (print-int (cdr (cdr ls)))))
+
 
 (define (test-empty-list)
   '())
