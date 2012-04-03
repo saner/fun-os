@@ -240,6 +240,42 @@ vectorConstructor ls =
     construct vecNo inst = inst
 
 
+-- lambda to closure
+lambdaToClosure :: [SchemeInst] -> [SchemeInst]
+lambdaToClosure insts = 
+  let instsVec = lambdaToVector insts
+      instsFun = lambdaToFun instsVec
+  in instsFun
+
+lambdaToFun insts = insts
+lambdaToVector :: [SchemeInst] -> [SchemeInst]
+lambdaToVector ls = 
+  map ls
+
+  where
+    convert (List (Atom "lambda" : args : body : [])) = 
+      let bodyConv = convBody args body
+      in List [ Atom "vector", bodyConv ]
+      where
+        convBody args (Atom arg) = List [Atom "vector-ref", Atom "self" ]
+        convBody (List (funName : rest)) = 
+          List $ funName : map convBody rest
+        convBody (DottedList insts inst) = 
+          let instsEx = map convBody insts
+              instEx = convBody inst
+          in DottedList instsEx instEx
+        convBody args inst = inst
+
+
+    convert (List insts) = 
+      List $ map convert insts
+
+    convert (DottedList insts inst) = 
+      let instsEx = map convert insts
+          instEx = convert inst
+      in DottedList instsEx instEx
+
+    convert inst = inst
 
 -- running pre-compiler
 preCompileCode :: [SchemeInst] -> [SchemeInst]
@@ -250,4 +286,5 @@ preCompileCode code =
       code3 = globalFun code2
       code4 = listExpansion code3
       code5 = vectorConstructor code4
+      code6 = lambdaToClosure code5
   in code5
