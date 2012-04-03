@@ -229,6 +229,21 @@ Stop-and-copy collector
 
 
 =====================
+Memory management
+
+SL (r12) points to C stack beginning which is in DTCM memory
+
+[SL] - current heap position
+
+
+
+=====================
+Processes
+
+
+
+
+=====================
 Compilation process
 
 [ prog.scm ]

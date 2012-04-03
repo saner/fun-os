@@ -236,8 +236,34 @@
   (BX LR))
 
 (define (internal-scheme-entry)
-  (test-list-exp))
+  (test-closure))
 
+(define (test-vector-comp)
+  ((print-int 3)))
+
+(define (test-vector-comp)
+  (let ((v (vector 1 (vector 10 20) (+ 2 3))))
+    (begin  (print-int (vector-ref v 0))
+            (print-int (vector-ref (vector-ref v 1) 0))
+            (print-int (vector-ref v 2)))))
+
+(define (test-vector-literal)
+  (let ((v (vector 1 2 3 4 5)))
+    (begin  (print-int (vector-ref v 0))
+            (print-int (vector-ref v 1))
+            (print-int (vector-ref v 2))
+            (print-int (vector-ref v 3))
+            (print-int (vector-ref v 4)))))
+
+(define (test-vector-simp)
+  (let ((v (begin (comment "vector construct")
+                  (let ((vec01 (make-vector 4)))
+                    (begin (vector-set! vec01 0 3) vec01)))))
+    (print-int (vector-ref vec01 0))))
+
+(define (test-list-exp-2)
+  (let ((ls (list 1 (list 10 20) 3)))
+    (print-int (car (cdr (car (cdr ls)))))))
 
 (define (test-list-exp)
   (let ((ls (list 1 2 3)))

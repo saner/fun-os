@@ -169,30 +169,6 @@ findRemoveGlobalFun (DottedList insts inst) =
 -- if was not matched so don't transform instruction
 findRemoveGlobalFun inst = (inst, []) 
 
--- expand list construct
--- (list 1 2 3 4)
-listExpansion :: [SchemeInst] -> [SchemeInst]
-
-listExpansion ls = 
-  map expand ls
-
-  where
-    expand (List (Atom "list" : insts)) = 
-      let instsEx = map expand insts
-          instsCons = foldl (\c e -> List (Atom "cons" : e : c : [] ) ) (List (Atom "quote": List [] : [])) (reverse instsEx)
-      in instsCons
-
-    expand (List insts) = 
-      List $ map expand insts
-
-    expand (DottedList insts inst) = 
-      let instsEx = map expand insts
-          instEx = expand inst
-      in DottedList instsEx instEx
-
-    expand inst = inst
-
-
 globalFun code = 
   let instsDecls = map findRemoveGlobalFun code
       insts = map fst instsDecls
@@ -206,6 +182,65 @@ globalFun code =
       List (Atom "inline" : String (".global " ++ (cleanName funName)) : [])
 
 
+-- expand list construct
+-- (list 1 2 3 4)
+listExpansion :: [SchemeInst] -> [SchemeInst]
+
+listExpansion ls = 
+  map expand ls
+
+  where
+    expand (List (Atom "list" : insts)) = 
+      let instsEx = map expand insts
+          instsCons = foldl (\c e -> List [Atom "cons", e, c]) (List [Atom "quote", List []]) (reverse instsEx)
+      in instsCons
+
+    expand (List insts) = 
+      List $ map expand insts
+
+    expand (DottedList insts inst) = 
+      let instsEx = map expand insts
+          instEx = expand inst
+      in DottedList instsEx instEx
+
+    expand inst = inst
+
+
+-- vector constructor
+-- (vector 1 2 3 4)
+vectorConstructor :: [SchemeInst] -> [SchemeInst]
+
+vectorConstructor ls = 
+  map (construct 0) ls
+
+  where
+    construct vecNo (List (Atom "vector" : insts)) = 
+      let vecName = "vec_" ++ (show vecNo)
+          instsEx = map (construct (vecNo + 1)) insts
+          vecSize = length insts
+          instsSet = vecSet vecName 0 instsEx
+      in List [ Atom "begin", 
+                List [ Atom "comment", String "vector constructor" ],
+                List [ Atom "let", List [ List [ Atom vecName, List [ Atom "make-vector", Number vecSize ] ] ], 
+                                   List ( [Atom "begin"] ++ instsSet ++ [Atom vecName]  ) ]]
+      where
+        vecSet vecName pos [] = []
+        vecSet vecName pos (inst : insts) =
+          List [Atom "vector-set!", Atom vecName, Number pos, inst] : vecSet vecName (pos + 1) insts
+
+
+    construct vecNo (List insts) = 
+      List $ map (construct vecNo) insts
+
+    construct vecNo (DottedList insts inst) = 
+      let instsEx = map (construct vecNo) insts
+          instEx = construct vecNo inst
+      in DottedList instsEx instEx
+
+    construct vecNo inst = inst
+
+
+
 -- running pre-compiler
 preCompileCode :: [SchemeInst] -> [SchemeInst]
 preCompileCode [] = []
@@ -214,4 +249,5 @@ preCompileCode code =
       code2 = declCFun code1
       code3 = globalFun code2
       code4 = listExpansion code3
-  in code4
+      code5 = vectorConstructor code4
+  in code5
