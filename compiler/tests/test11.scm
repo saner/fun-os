@@ -236,10 +236,7 @@
   (BX LR))
 
 (define (internal-scheme-entry)
-  (test-closure))
-
-(define (test-vector-comp)
-  ((print-int 3)))
+  (test-vector-comp))
 
 (define (test-vector-comp)
   (let ((v (vector 1 (vector 10 20) (+ 2 3))))
@@ -273,9 +270,6 @@
   (let ((ls (cons 1 (cons 2 3))))
     (print-int (cdr (cdr ls)))))
 
-
-(define (test-empty-list)
-  '())
 
 (define (test-let-2)
   (let ((v1 (make-vector 4)) (v2 (make-vector 5)))

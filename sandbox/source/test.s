@@ -1420,23 +1420,6 @@ test_cons_complex:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
-test_empty_list:
-  STMFD SP!, {LR}
-  STMFD SP!, {R4, R5, R6, R7, R8, R9}
-  STMFD SP!, {SL}
-  STMFD SP!, {FP}
-  MOV FP, SP
-  @ body start
-  @ empty list with name _var107
-  MOV R0, #0
-  MOV R0, R0
-  @ body end
-  MOV SP, FP
-  LDMFD SP!, {FP}
-  LDMFD SP!, {SL}
-  LDMFD SP!, {R4, R5, R6, R7, R8, R9}
-  LDMFD SP!, {LR}
-  BX LR
 test_let_2:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -1447,8 +1430,8 @@ test_let_2:
   @ let block start
   @ let block var def start
   @ calling function make-vector
-  @ preparing arg _var108
-  @ int 4 with name _var108
+  @ preparing arg _var107
+  @ int 4 with name _var107
   MOV R0, #4
   @ tagging int, reg R0
   LSL R0, R0, #3
@@ -1463,8 +1446,8 @@ test_let_2:
   @ let block var def end
   @ let block var def start
   @ calling function make-vector
-  @ preparing arg _var110
-  @ int 5 with name _var110
+  @ preparing arg _var109
+  @ int 5 with name _var109
   MOV R3, #5
   @ tagging int, reg R3
   LSL R3, R3, #3
@@ -1481,14 +1464,14 @@ test_let_2:
   @ let block var def end
   @ calling function vector-set!
   @ preparing arg v1
-  @ preparing arg _var112
-  @ int 0 with name _var112
+  @ preparing arg _var111
+  @ int 0 with name _var111
   MOV R5, #0
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var113
-  @ int 0 with name _var113
+  @ preparing arg _var112
+  @ int 0 with name _var112
   MOV R6, #0
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1509,14 +1492,14 @@ test_let_2:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v1
-  @ preparing arg _var115
-  @ int 1 with name _var115
+  @ preparing arg _var114
+  @ int 1 with name _var114
   MOV R5, #1
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var116
-  @ int 1 with name _var116
+  @ preparing arg _var115
+  @ int 1 with name _var115
   MOV R6, #1
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1536,14 +1519,14 @@ test_let_2:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v1
-  @ preparing arg _var118
-  @ int 2 with name _var118
+  @ preparing arg _var117
+  @ int 2 with name _var117
   MOV R5, #2
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var119
-  @ int 2 with name _var119
+  @ preparing arg _var118
+  @ int 2 with name _var118
   MOV R6, #2
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1563,14 +1546,14 @@ test_let_2:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v1
-  @ preparing arg _var121
-  @ int 3 with name _var121
+  @ preparing arg _var120
+  @ int 3 with name _var120
   MOV R5, #3
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var122
-  @ int 3 with name _var122
+  @ preparing arg _var121
+  @ int 3 with name _var121
   MOV R6, #3
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1592,14 +1575,14 @@ test_let_2:
   @ preparing arg v2
   @ loading var "v2"
   LDR R5, [FP, #-8]
-  @ preparing arg _var124
-  @ int 0 with name _var124
+  @ preparing arg _var123
+  @ int 0 with name _var123
   MOV R6, #0
   @ tagging int, reg R6
   LSL R6, R6, #3
   ORR R6, R6, #2
-  @ preparing arg _var125
-  @ int 10 with name _var125
+  @ preparing arg _var124
+  @ int 10 with name _var124
   MOV R7, #10
   @ tagging int, reg R7
   LSL R7, R7, #3
@@ -1621,14 +1604,14 @@ test_let_2:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v2
-  @ preparing arg _var127
-  @ int 1 with name _var127
+  @ preparing arg _var126
+  @ int 1 with name _var126
   MOV R5, #1
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var128
-  @ int 20 with name _var128
+  @ preparing arg _var127
+  @ int 20 with name _var127
   MOV R6, #20
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1648,14 +1631,14 @@ test_let_2:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v2
-  @ preparing arg _var130
-  @ int 2 with name _var130
+  @ preparing arg _var129
+  @ int 2 with name _var129
   MOV R5, #2
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var131
-  @ int 30 with name _var131
+  @ preparing arg _var130
+  @ int 30 with name _var130
   MOV R6, #30
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1675,14 +1658,14 @@ test_let_2:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v2
-  @ preparing arg _var133
-  @ int 3 with name _var133
+  @ preparing arg _var132
+  @ int 3 with name _var132
   MOV R5, #3
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var134
-  @ int 40 with name _var134
+  @ preparing arg _var133
+  @ int 40 with name _var133
   MOV R6, #40
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1704,8 +1687,8 @@ test_let_2:
   @ preparing arg v1
   @ loading var "v1"
   LDR R5, [FP, #-60]
-  @ preparing arg _var136
-  @ int 3 with name _var136
+  @ preparing arg _var135
+  @ int 3 with name _var135
   MOV R6, #3
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1726,8 +1709,8 @@ test_let_2:
   @ preparing arg v2
   @ loading var "v2"
   LDR R5, [FP, #-8]
-  @ preparing arg _var138
-  @ int 2 with name _var138
+  @ preparing arg _var137
+  @ int 2 with name _var137
   MOV R6, #2
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -1744,7 +1727,7 @@ test_let_2:
   MOV R4, R0
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function vector-ref
-  @ loading var "_var137"
+  @ loading var "_var136"
   LDR R6, [FP, #-116]
   @ untagging int, reg R6
   LSR R6, R6, #3
@@ -1778,7 +1761,7 @@ test_let:
   @ body start
   @ let block start
   @ let block var def start
-  @ int 1 with name _var141
+  @ int 1 with name _var140
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
@@ -1786,7 +1769,7 @@ test_let:
   MOV R1, R0
   @ let block var def end
   @ let block var def start
-  @ int 5 with name _var142
+  @ int 5 with name _var141
   MOV R2, #5
   @ tagging int, reg R2
   LSL R2, R2, #3
@@ -1824,10 +1807,10 @@ test_vector_init:
   MOV FP, SP
   @ body start
   @ calling function test-vector
-  @ preparing arg _var145
-  @ calling function make-vector
   @ preparing arg _var144
-  @ int 10 with name _var144
+  @ calling function make-vector
+  @ preparing arg _var143
+  @ int 10 with name _var143
   MOV R0, #10
   @ tagging int, reg R0
   LSL R0, R0, #3
@@ -1838,16 +1821,16 @@ test_vector_init:
   MOV R1, R0
   LDMFD SP!, {R0}
   @ call end function make-vector
-  @ preparing arg _var148
+  @ preparing arg _var147
   @ calling function cons
-  @ preparing arg _var146
-  @ int 99 with name _var146
+  @ preparing arg _var145
+  @ int 99 with name _var145
   MOV R2, #99
   @ tagging int, reg R2
   LSL R2, R2, #3
   ORR R2, R2, #2
-  @ preparing arg _var147
-  @ int 9 with name _var147
+  @ preparing arg _var146
+  @ int 9 with name _var146
   MOV R3, #9
   @ tagging int, reg R3
   LSL R3, R3, #3
@@ -1863,10 +1846,10 @@ test_vector_init:
   MOV R2, R0
   LDMFD SP!, {R0, R1}
   @ call end function cons
-  @ preparing arg _var150
-  @ calling function make-vector
   @ preparing arg _var149
-  @ int 5 with name _var149
+  @ calling function make-vector
+  @ preparing arg _var148
+  @ int 5 with name _var148
   MOV R3, #5
   @ tagging int, reg R3
   LSL R3, R3, #3
@@ -1880,7 +1863,7 @@ test_vector_init:
   LDMFD SP!, {R0, R1, R2}
   @ call end function make-vector
   @ loading to reg arg 3
-  @ loading var "_var145"
+  @ loading var "_var144"
   STMFD SP!, {R0}
   LDR R0, [FP, #-8]
   @ loading to reg arg 2
@@ -1909,7 +1892,7 @@ test_vector:
   MOV FP, SP
   @ body start
   @ calling function print_int_c_wrapper
-  @ preparing arg _var152
+  @ preparing arg _var151
   @ calling function car
   @ preparing arg co
   @ loading to reg arg 1
@@ -1932,14 +1915,14 @@ test_vector:
   @ preparing arg v1
   @ loading var "v1"
   LDR R3, [FP, #-4]
-  @ preparing arg _var154
-  @ int 6 with name _var154
+  @ preparing arg _var153
+  @ int 6 with name _var153
   MOV R4, #6
   @ tagging int, reg R4
   LSL R4, R4, #3
   ORR R4, R4, #2
-  @ preparing arg _var155
-  @ int 1 with name _var155
+  @ preparing arg _var154
+  @ int 1 with name _var154
   MOV R5, #1
   @ tagging int, reg R5
   LSL R5, R5, #3
@@ -1949,7 +1932,7 @@ test_vector:
   STMFD SP!, {R0}
   MOV R0, R3
   @ loading to reg arg 2
-  @ loading var "_var154"
+  @ loading var "_var153"
   STMFD SP!, {R1}
   LDR R1, [FP, #-12]
   @ loading to reg arg 1
@@ -1962,14 +1945,14 @@ test_vector:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v1
-  @ preparing arg _var157
-  @ int 7 with name _var157
+  @ preparing arg _var156
+  @ int 7 with name _var156
   MOV R4, #7
   @ tagging int, reg R4
   LSL R4, R4, #3
   ORR R4, R4, #2
-  @ preparing arg _var158
-  @ int 2 with name _var158
+  @ preparing arg _var157
+  @ int 2 with name _var157
   MOV R5, #2
   @ tagging int, reg R5
   LSL R5, R5, #3
@@ -1977,7 +1960,7 @@ test_vector:
   STMFD SP!, {R4}
   @ loading to reg arg 3
   @ loading to reg arg 2
-  @ loading var "_var157"
+  @ loading var "_var156"
   STR R1, [FP, #-12]
   LDR R1, [FP, #-28]
   @ loading to reg arg 1
@@ -1990,14 +1973,14 @@ test_vector:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v1
-  @ preparing arg _var160
-  @ int 8 with name _var160
+  @ preparing arg _var159
+  @ int 8 with name _var159
   MOV R5, #8
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var161
-  @ int 3 with name _var161
+  @ preparing arg _var160
+  @ int 3 with name _var160
   MOV R6, #3
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2017,14 +2000,14 @@ test_vector:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v1
-  @ preparing arg _var163
-  @ int 9 with name _var163
+  @ preparing arg _var162
+  @ int 9 with name _var162
   MOV R5, #9
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var164
-  @ int 4 with name _var164
+  @ preparing arg _var163
+  @ int 4 with name _var163
   MOV R6, #4
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2046,14 +2029,14 @@ test_vector:
   @ preparing arg v2
   @ loading var "v2"
   LDR R5, [FP, #-24]
-  @ preparing arg _var166
-  @ int 0 with name _var166
+  @ preparing arg _var165
+  @ int 0 with name _var165
   MOV R6, #0
   @ tagging int, reg R6
   LSL R6, R6, #3
   ORR R6, R6, #2
-  @ preparing arg _var167
-  @ int 10 with name _var167
+  @ preparing arg _var166
+  @ int 10 with name _var166
   MOV R7, #10
   @ tagging int, reg R7
   LSL R7, R7, #3
@@ -2075,14 +2058,14 @@ test_vector:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v2
-  @ preparing arg _var169
-  @ int 1 with name _var169
+  @ preparing arg _var168
+  @ int 1 with name _var168
   MOV R5, #1
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var170
-  @ int 20 with name _var170
+  @ preparing arg _var169
+  @ int 20 with name _var169
   MOV R6, #20
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2102,14 +2085,14 @@ test_vector:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v2
-  @ preparing arg _var172
-  @ int 2 with name _var172
+  @ preparing arg _var171
+  @ int 2 with name _var171
   MOV R5, #2
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var173
-  @ int 30 with name _var173
+  @ preparing arg _var172
+  @ int 30 with name _var172
   MOV R6, #30
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2129,14 +2112,14 @@ test_vector:
   @ call end function vector-set!
   @ calling function vector-set!
   @ preparing arg v2
-  @ preparing arg _var175
-  @ int 3 with name _var175
+  @ preparing arg _var174
+  @ int 3 with name _var174
   MOV R5, #3
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var176
-  @ int 40 with name _var176
+  @ preparing arg _var175
+  @ int 40 with name _var175
   MOV R6, #40
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2155,7 +2138,7 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function vector-set!
   @ calling function print_int_c_wrapper
-  @ preparing arg _var178
+  @ preparing arg _var177
   @ calling function cdr
   @ preparing arg co
   @ loading var "co"
@@ -2171,7 +2154,7 @@ test_vector:
   @ call end function cdr
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var178"
+  @ loading var "_var177"
   STR R0, [FP, #-8]
   LDR R0, [FP, #-108]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2180,13 +2163,13 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var181
+  @ preparing arg _var180
   @ calling function vector-ref
   @ preparing arg v1
   @ loading var "v1"
   LDR R5, [FP, #-4]
-  @ preparing arg _var180
-  @ int 6 with name _var180
+  @ preparing arg _var179
+  @ int 6 with name _var179
   MOV R6, #6
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2205,7 +2188,7 @@ test_vector:
   @ call end function vector-ref
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var181"
+  @ loading var "_var180"
   STR R0, [FP, #-4]
   LDR R0, [FP, #-120]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2214,13 +2197,13 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var184
+  @ preparing arg _var183
   @ calling function vector-ref
   @ preparing arg v1
   @ loading var "v1"
   LDR R5, [FP, #-4]
-  @ preparing arg _var183
-  @ int 7 with name _var183
+  @ preparing arg _var182
+  @ int 7 with name _var182
   MOV R6, #7
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2239,7 +2222,7 @@ test_vector:
   @ call end function vector-ref
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var184"
+  @ loading var "_var183"
   STR R0, [FP, #-4]
   LDR R0, [FP, #-132]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2248,13 +2231,13 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var187
+  @ preparing arg _var186
   @ calling function vector-ref
   @ preparing arg v1
   @ loading var "v1"
   LDR R5, [FP, #-4]
-  @ preparing arg _var186
-  @ int 8 with name _var186
+  @ preparing arg _var185
+  @ int 8 with name _var185
   MOV R6, #8
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2273,7 +2256,7 @@ test_vector:
   @ call end function vector-ref
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var187"
+  @ loading var "_var186"
   STR R0, [FP, #-4]
   LDR R0, [FP, #-144]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2282,13 +2265,13 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var190
+  @ preparing arg _var189
   @ calling function vector-ref
   @ preparing arg v1
   @ loading var "v1"
   LDR R5, [FP, #-4]
-  @ preparing arg _var189
-  @ int 9 with name _var189
+  @ preparing arg _var188
+  @ int 9 with name _var188
   MOV R6, #9
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2307,7 +2290,7 @@ test_vector:
   @ call end function vector-ref
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var190"
+  @ loading var "_var189"
   STR R0, [FP, #-4]
   LDR R0, [FP, #-156]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2316,13 +2299,13 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var193
+  @ preparing arg _var192
   @ calling function vector-ref
   @ preparing arg v2
   @ loading var "v2"
   LDR R5, [FP, #-24]
-  @ preparing arg _var192
-  @ int 0 with name _var192
+  @ preparing arg _var191
+  @ int 0 with name _var191
   MOV R6, #0
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2341,7 +2324,7 @@ test_vector:
   @ call end function vector-ref
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var193"
+  @ loading var "_var192"
   STR R0, [FP, #-24]
   LDR R0, [FP, #-168]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2350,13 +2333,13 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var196
+  @ preparing arg _var195
   @ calling function vector-ref
   @ preparing arg v2
   @ loading var "v2"
   LDR R5, [FP, #-24]
-  @ preparing arg _var195
-  @ int 1 with name _var195
+  @ preparing arg _var194
+  @ int 1 with name _var194
   MOV R6, #1
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2375,7 +2358,7 @@ test_vector:
   @ call end function vector-ref
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var196"
+  @ loading var "_var195"
   STR R0, [FP, #-24]
   LDR R0, [FP, #-180]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2384,13 +2367,13 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var199
+  @ preparing arg _var198
   @ calling function vector-ref
   @ preparing arg v2
   @ loading var "v2"
   LDR R5, [FP, #-24]
-  @ preparing arg _var198
-  @ int 2 with name _var198
+  @ preparing arg _var197
+  @ int 2 with name _var197
   MOV R6, #2
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2409,7 +2392,7 @@ test_vector:
   @ call end function vector-ref
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var199"
+  @ loading var "_var198"
   STR R0, [FP, #-24]
   LDR R0, [FP, #-192]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2418,13 +2401,13 @@ test_vector:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var202
+  @ preparing arg _var201
   @ calling function vector-ref
   @ preparing arg v2
   @ loading var "v2"
   LDR R5, [FP, #-24]
-  @ preparing arg _var201
-  @ int 3 with name _var201
+  @ preparing arg _var200
+  @ int 3 with name _var200
   MOV R6, #3
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2443,7 +2426,7 @@ test_vector:
   @ call end function vector-ref
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var202"
+  @ loading var "_var201"
   STR R0, [FP, #-24]
   LDR R0, [FP, #-204]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2467,16 +2450,16 @@ test_cons_init:
   MOV FP, SP
   @ body start
   @ calling function test-cons
-  @ preparing arg _var206
+  @ preparing arg _var205
   @ calling function cons
-  @ preparing arg _var204
-  @ int 1 with name _var204
+  @ preparing arg _var203
+  @ int 1 with name _var203
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ preparing arg _var205
-  @ int 2 with name _var205
+  @ preparing arg _var204
+  @ int 2 with name _var204
   MOV R1, #2
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -2488,16 +2471,16 @@ test_cons_init:
   MOV R2, R0
   LDMFD SP!, {R0, R1}
   @ call end function cons
-  @ preparing arg _var209
+  @ preparing arg _var208
   @ calling function cons
-  @ preparing arg _var207
-  @ int 3 with name _var207
+  @ preparing arg _var206
+  @ int 3 with name _var206
   MOV R3, #3
   @ tagging int, reg R3
   LSL R3, R3, #3
   ORR R3, R3, #2
-  @ preparing arg _var208
-  @ int 4 with name _var208
+  @ preparing arg _var207
+  @ int 4 with name _var207
   MOV R4, #4
   @ tagging int, reg R4
   LSL R4, R4, #3
@@ -2507,7 +2490,7 @@ test_cons_init:
   STMFD SP!, {R0}
   MOV R0, R3
   @ loading to reg arg 1
-  @ loading var "_var208"
+  @ loading var "_var207"
   STMFD SP!, {R1}
   LDR R1, [FP, #-4]
   STMFD SP!, {R0, R1, R2}
@@ -2515,23 +2498,23 @@ test_cons_init:
   MOV R3, R0
   LDMFD SP!, {R0, R1, R2}
   @ call end function cons
-  @ preparing arg _var212
+  @ preparing arg _var211
   @ calling function cons
-  @ preparing arg _var210
-  @ int 5 with name _var210
+  @ preparing arg _var209
+  @ int 5 with name _var209
   MOV R4, #5
   @ tagging int, reg R4
   LSL R4, R4, #3
   ORR R4, R4, #2
-  @ preparing arg _var211
-  @ int 6 with name _var211
+  @ preparing arg _var210
+  @ int 6 with name _var210
   MOV R5, #6
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
   STMFD SP!, {R4}
   @ loading to reg arg 2
-  @ loading var "_var210"
+  @ loading var "_var209"
   STMFD SP!, {R0}
   LDR R0, [FP, #-16]
   @ loading to reg arg 1
@@ -2542,16 +2525,16 @@ test_cons_init:
   MOV R4, R0
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function cons
-  @ preparing arg _var215
+  @ preparing arg _var214
   @ calling function cons
-  @ preparing arg _var213
-  @ int 7 with name _var213
+  @ preparing arg _var212
+  @ int 7 with name _var212
   MOV R5, #7
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var214
-  @ int 8 with name _var214
+  @ preparing arg _var213
+  @ int 8 with name _var213
   MOV R6, #8
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2576,10 +2559,10 @@ test_cons_init:
   STMFD SP!, {R1}
   MOV R1, R3
   @ loading to reg arg 2
-  @ loading var "_var212"
+  @ loading var "_var211"
   LDR R2, [FP, #-24]
   @ loading to reg arg 1
-  @ loading var "_var215"
+  @ loading var "_var214"
   LDR R3, [FP, #-32]
   STMFD SP!, {R0, R1, R2, R3}
   BL test_cons
@@ -2602,7 +2585,7 @@ test_cons:
   MOV FP, SP
   @ body start
   @ calling function print_int_c_wrapper
-  @ preparing arg _var217
+  @ preparing arg _var216
   @ calling function car
   @ preparing arg a
   @ loading to reg arg 1
@@ -2613,7 +2596,7 @@ test_cons:
   @ call end function car
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var217"
+  @ loading var "_var216"
   STMFD SP!, {R0}
   LDR R0, [FP, #-4]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2622,7 +2605,7 @@ test_cons:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var219
+  @ preparing arg _var218
   @ calling function cdr
   @ preparing arg a
   @ loading var "a"
@@ -2638,7 +2621,7 @@ test_cons:
   @ call end function cdr
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var219"
+  @ loading var "_var218"
   STR R0, [FP, #-8]
   LDR R0, [FP, #-16]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2647,7 +2630,7 @@ test_cons:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var221
+  @ preparing arg _var220
   @ calling function car
   @ preparing arg b
   STMFD SP!, {R4}
@@ -2668,7 +2651,7 @@ test_cons:
   LDMFD SP!, {R0, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var223
+  @ preparing arg _var222
   @ calling function cdr
   @ preparing arg b
   @ loading var "b"
@@ -2685,7 +2668,7 @@ test_cons:
   @ call end function cdr
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var223"
+  @ loading var "_var222"
   STR R0, [FP, #-24]
   LDR R0, [FP, #-32]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2694,7 +2677,7 @@ test_cons:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var225
+  @ preparing arg _var224
   @ calling function car
   @ preparing arg c
   STMFD SP!, {R4}
@@ -2715,7 +2698,7 @@ test_cons:
   LDMFD SP!, {R0, R1, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var227
+  @ preparing arg _var226
   @ calling function cdr
   @ preparing arg c
   @ loading var "c"
@@ -2732,7 +2715,7 @@ test_cons:
   @ call end function cdr
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var227"
+  @ loading var "_var226"
   STR R0, [FP, #-40]
   LDR R0, [FP, #-48]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2741,7 +2724,7 @@ test_cons:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var229
+  @ preparing arg _var228
   @ calling function car
   @ preparing arg d
   STMFD SP!, {R4}
@@ -2762,7 +2745,7 @@ test_cons:
   LDMFD SP!, {R0, R1, R2}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var231
+  @ preparing arg _var230
   @ calling function cdr
   @ preparing arg d
   @ loading var "d"
@@ -2779,7 +2762,7 @@ test_cons:
   @ call end function cdr
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var231"
+  @ loading var "_var230"
   STR R0, [FP, #-56]
   LDR R0, [FP, #-64]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2803,18 +2786,18 @@ test_cons_2_init:
   MOV FP, SP
   @ body start
   @ calling function print_int_c_wrapper
-  @ preparing arg _var236
-  @ calling function car
   @ preparing arg _var235
+  @ calling function car
+  @ preparing arg _var234
   @ calling function cons
-  @ preparing arg _var233
-  @ int 1 with name _var233
+  @ preparing arg _var232
+  @ int 1 with name _var232
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ preparing arg _var234
-  @ int 2 with name _var234
+  @ preparing arg _var233
+  @ int 2 with name _var233
   MOV R1, #2
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -2843,18 +2826,18 @@ test_cons_2_init:
   LDMFD SP!, {R0, R1}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var241
-  @ calling function car
   @ preparing arg _var240
+  @ calling function car
+  @ preparing arg _var239
   @ calling function cons
-  @ preparing arg _var238
-  @ int 10 with name _var238
+  @ preparing arg _var237
+  @ int 10 with name _var237
   MOV R3, #10
   @ tagging int, reg R3
   LSL R3, R3, #3
   ORR R3, R3, #2
-  @ preparing arg _var239
-  @ int 20 with name _var239
+  @ preparing arg _var238
+  @ int 20 with name _var238
   MOV R4, #20
   @ tagging int, reg R4
   LSL R4, R4, #3
@@ -2864,7 +2847,7 @@ test_cons_2_init:
   STMFD SP!, {R0}
   MOV R0, R3
   @ loading to reg arg 1
-  @ loading var "_var239"
+  @ loading var "_var238"
   STMFD SP!, {R1}
   LDR R1, [FP, #-12]
   STMFD SP!, {R0, R1, R2}
@@ -2889,25 +2872,25 @@ test_cons_2_init:
   LDMFD SP!, {R0, R1, R2}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var246
-  @ calling function car
   @ preparing arg _var245
+  @ calling function car
+  @ preparing arg _var244
   @ calling function cons
-  @ preparing arg _var243
-  @ int 11 with name _var243
+  @ preparing arg _var242
+  @ int 11 with name _var242
   MOV R4, #11
   @ tagging int, reg R4
   LSL R4, R4, #3
   ORR R4, R4, #2
-  @ preparing arg _var244
-  @ int 21 with name _var244
+  @ preparing arg _var243
+  @ int 21 with name _var243
   MOV R5, #21
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
   STMFD SP!, {R4}
   @ loading to reg arg 2
-  @ loading var "_var243"
+  @ loading var "_var242"
   STMFD SP!, {R0}
   LDR R0, [FP, #-32]
   @ loading to reg arg 1
@@ -2920,7 +2903,7 @@ test_cons_2_init:
   @ call end function cons
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var245"
+  @ loading var "_var244"
   STR R0, [FP, #-32]
   LDR R0, [FP, #-40]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2930,7 +2913,7 @@ test_cons_2_init:
   @ call end function car
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var246"
+  @ loading var "_var245"
   STR R0, [FP, #-40]
   LDR R0, [FP, #-44]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2939,18 +2922,18 @@ test_cons_2_init:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var251
-  @ calling function car
   @ preparing arg _var250
+  @ calling function car
+  @ preparing arg _var249
   @ calling function cons
-  @ preparing arg _var248
-  @ int 12 with name _var248
+  @ preparing arg _var247
+  @ int 12 with name _var247
   MOV R5, #12
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var249
-  @ int 22 with name _var249
+  @ preparing arg _var248
+  @ int 22 with name _var248
   MOV R6, #22
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -2969,7 +2952,7 @@ test_cons_2_init:
   @ call end function cons
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var250"
+  @ loading var "_var249"
   STMFD SP!, {R0}
   LDR R0, [FP, #-56]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2979,7 +2962,7 @@ test_cons_2_init:
   @ call end function car
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var251"
+  @ loading var "_var250"
   STR R0, [FP, #-56]
   LDR R0, [FP, #-64]
   STMFD SP!, {R0, R1, R2, R3}
@@ -2988,18 +2971,18 @@ test_cons_2_init:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var256
-  @ calling function car
   @ preparing arg _var255
+  @ calling function car
+  @ preparing arg _var254
   @ calling function cons
-  @ preparing arg _var253
-  @ int 13 with name _var253
+  @ preparing arg _var252
+  @ int 13 with name _var252
   MOV R5, #13
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var254
-  @ int 23 with name _var254
+  @ preparing arg _var253
+  @ int 23 with name _var253
   MOV R6, #23
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -3018,7 +3001,7 @@ test_cons_2_init:
   @ call end function cons
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var255"
+  @ loading var "_var254"
   STMFD SP!, {R0}
   LDR R0, [FP, #-76]
   STMFD SP!, {R0, R1, R2, R3}
@@ -3028,7 +3011,7 @@ test_cons_2_init:
   @ call end function car
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var256"
+  @ loading var "_var255"
   STR R0, [FP, #-76]
   LDR R0, [FP, #-84]
   STMFD SP!, {R0, R1, R2, R3}
@@ -3037,18 +3020,18 @@ test_cons_2_init:
   LDMFD SP!, {R0, R1, R2, R3}
   @ call end function print_int_c_wrapper
   @ calling function print_int_c_wrapper
-  @ preparing arg _var261
-  @ calling function car
   @ preparing arg _var260
+  @ calling function car
+  @ preparing arg _var259
   @ calling function cons
-  @ preparing arg _var258
-  @ int 5 with name _var258
+  @ preparing arg _var257
+  @ int 5 with name _var257
   MOV R5, #5
   @ tagging int, reg R5
   LSL R5, R5, #3
   ORR R5, R5, #2
-  @ preparing arg _var259
-  @ int 6 with name _var259
+  @ preparing arg _var258
+  @ int 6 with name _var258
   MOV R6, #6
   @ tagging int, reg R6
   LSL R6, R6, #3
@@ -3067,7 +3050,7 @@ test_cons_2_init:
   @ call end function cons
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var260"
+  @ loading var "_var259"
   STMFD SP!, {R0}
   LDR R0, [FP, #-96]
   STMFD SP!, {R0, R1, R2, R3}
@@ -3077,7 +3060,7 @@ test_cons_2_init:
   @ call end function car
   STMFD SP!, {R4}
   @ loading to reg arg 1
-  @ loading var "_var261"
+  @ loading var "_var260"
   STR R0, [FP, #-96]
   LDR R0, [FP, #-104]
   STMFD SP!, {R0, R1, R2, R3}
@@ -3112,8 +3095,8 @@ dtcm_stack_size:
   LDMFD SP!, {R0}
   @ call end function print_int_c_wrapper
   @ calling function dtcm-stack-size
-  @ preparing arg _var265
-  @ int 1 with name _var264
+  @ preparing arg _var264
+  @ int 1 with name _var263
   MOV R2, #1
   @ tagging int, reg R2
   LSL R2, R2, #3
@@ -3158,7 +3141,7 @@ power6:
   @  -- if-then-else -- 
   @ calculating predicate
   @  -- comp LE -- 
-  @ int 1 with name _var267
+  @ int 1 with name _var266
   MOV R1, #1
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -3179,12 +3162,12 @@ power6:
   BNE .Lelse_4
 .Lthen_3:
   @ then block
-  @ int 1 with name _var270
+  @ int 1 with name _var269
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ loading var "_var269"
+  @ loading var "_var268"
   LDR R3, [FP, #-16]
   @ then reg move
   MOV R3, R0
@@ -3208,8 +3191,8 @@ power6:
   LDMFD SP!, {R0}
   @ call end function print_int_c_wrapper
   @ calling function power
-  @ preparing arg _var273
-  @ int 1 with name _var272
+  @ preparing arg _var272
+  @ int 1 with name _var271
   MOV R2, #1
   @ tagging int, reg R2
   LSL R2, R2, #3
@@ -3236,11 +3219,11 @@ power6:
   MOV R3, R0
   LDMFD SP!, {R0, R1, R2}
   @ call end function power
-  @ loading var "_var269"
+  @ loading var "_var268"
   STMFD SP!, {R3}
   LDR R3, [FP, #-16]
   @ else reg move
-  @ loading var "_var274"
+  @ loading var "_var273"
   LDR R4, [FP, #-20]
   MOV R3, R4
   @ else dump regs
@@ -3271,7 +3254,7 @@ power:
   @  -- if-then-else -- 
   @ calculating predicate
   @  -- comp LE -- 
-  @ int 1 with name _var275
+  @ int 1 with name _var274
   MOV R1, #1
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -3292,12 +3275,12 @@ power:
   BNE .Lelse_10
 .Lthen_9:
   @ then block
-  @ int 1 with name _var278
+  @ int 1 with name _var277
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ loading var "_var277"
+  @ loading var "_var276"
   LDR R3, [FP, #-16]
   @ then reg move
   MOV R3, R0
@@ -3321,8 +3304,8 @@ power:
   LDMFD SP!, {R0}
   @ call end function print_int_c_wrapper
   @ calling function power
-  @ preparing arg _var281
-  @ int 1 with name _var280
+  @ preparing arg _var280
+  @ int 1 with name _var279
   MOV R2, #1
   @ tagging int, reg R2
   LSL R2, R2, #3
@@ -3365,7 +3348,7 @@ power:
   @ tagging int, reg R3
   LSL R3, R3, #3
   ORR R3, R3, #2
-  @ loading var "_var277"
+  @ loading var "_var276"
   STMFD SP!, {R3}
   LDR R3, [FP, #-16]
   @ else reg move
@@ -3396,7 +3379,7 @@ poweri:
   STMFD SP!, {FP}
   MOV FP, SP
   @ body start
-  @ int 5 with name _var284
+  @ int 5 with name _var283
   MOV R1, #5
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -3419,7 +3402,7 @@ power2:
   @  -- if-then-else -- 
   @ calculating predicate
   @  -- comp LE -- 
-  @ int 1 with name _var285
+  @ int 1 with name _var284
   MOV R1, #1
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -3440,12 +3423,12 @@ power2:
   BNE .Lelse_16
 .Lthen_15:
   @ then block
-  @ int 1 with name _var288
+  @ int 1 with name _var287
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ loading var "_var287"
+  @ loading var "_var286"
   LDR R3, [FP, #-16]
   @ then reg move
   MOV R3, R0
@@ -3461,8 +3444,8 @@ power2:
   @ loading var "i"
   LDR R0, [FP, #-4]
   @ calling function power
-  @ preparing arg _var290
-  @ int 1 with name _var289
+  @ preparing arg _var289
+  @ int 1 with name _var288
   MOV R1, #1
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -3505,11 +3488,11 @@ power2:
   @ tagging int, reg R2
   LSL R2, R2, #3
   ORR R2, R2, #2
-  @ loading var "_var287"
+  @ loading var "_var286"
   STMFD SP!, {R3}
   LDR R3, [FP, #-16]
   @ else reg move
-  @ loading var "_var292"
+  @ loading var "_var291"
   LDR R5, [FP, #-20]
   MOV R3, R5
   @ else dump regs
@@ -3541,12 +3524,12 @@ scheme_entry2:
   @  -- if-then-else -- 
   @ calculating predicate
   @  -- comp LT -- 
-  @ int 2 with name _var293
+  @ int 2 with name _var292
   MOV R0, #2
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ int 1 with name _var294
+  @ int 1 with name _var293
   MOV R1, #1
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -3567,12 +3550,12 @@ scheme_entry2:
   BNE .Lelse_22
 .Lthen_21:
   @ then block
-  @ int 1 with name _var297
+  @ int 1 with name _var296
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ loading var "_var296"
+  @ loading var "_var295"
   LDR R3, [FP, #-16]
   @ then reg move
   MOV R3, R0
@@ -3588,14 +3571,14 @@ scheme_entry2:
   @  -- if-then-else -- 
   @ calculating predicate
   @ calling function eq?
-  @ preparing arg _var298
-  @ int 3 with name _var298
+  @ preparing arg _var297
+  @ int 3 with name _var297
   MOV R0, #3
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ preparing arg _var299
-  @ int 2 with name _var299
+  @ preparing arg _var298
+  @ int 2 with name _var298
   MOV R1, #2
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -3615,12 +3598,12 @@ scheme_entry2:
   BNE .Lelse_25
 .Lthen_24:
   @ then block
-  @ int 2 with name _var302
+  @ int 2 with name _var301
   MOV R0, #2
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ loading var "_var301"
+  @ loading var "_var300"
   LDR R3, [FP, #-32]
   @ then reg move
   MOV R3, R0
@@ -3634,8 +3617,8 @@ scheme_entry2:
 .Lelse_25:
   @ else block
   @ calling function print_bool
-  @ preparing arg _var303
-  @ bool False with name _var303
+  @ preparing arg _var302
+  @ bool False with name _var302
   MOV R0, #0
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3646,7 +3629,7 @@ scheme_entry2:
   MOV R1, R0
   LDMFD SP!, {R0}
   @ call end function print_bool
-  @ loading var "_var301"
+  @ loading var "_var300"
   LDR R3, [FP, #-32]
   @ else reg move
   MOV R3, R1
@@ -3658,10 +3641,10 @@ scheme_entry2:
   MOV SP, FP
   SUB SP, SP, #-32
 .Lend_26:
-  @ loading var "_var296"
+  @ loading var "_var295"
   LDR R3, [FP, #-16]
   @ else reg move
-  @ loading var "_var301"
+  @ loading var "_var300"
   LDR R0, [FP, #-32]
   MOV R3, R0
   @ else dump regs
@@ -3688,7 +3671,7 @@ print:
   @ body start
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool False with name _var305
+  @ bool False with name _var304
   MOV R1, #0
   @ tagging bool, reg R1
   LSL R1, R1, #3
@@ -3700,12 +3683,12 @@ print:
   BNE .Lelse_28
 .Lthen_27:
   @ then block
-  @ int 10 with name _var307
+  @ int 10 with name _var306
   MOV R0, #10
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ loading var "_var306"
+  @ loading var "_var305"
   LDR R2, [FP, #-12]
   @ then reg move
   MOV R2, R0
@@ -3720,7 +3703,7 @@ print:
   @ else block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool True with name _var308
+  @ bool True with name _var307
   MOV R0, #1
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3733,7 +3716,7 @@ print:
   @ then block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool False with name _var310
+  @ bool False with name _var309
   MOV R0, #0
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3744,12 +3727,12 @@ print:
   BNE .Lelse_34
 .Lthen_33:
   @ then block
-  @ int 11 with name _var312
+  @ int 11 with name _var311
   MOV R0, #11
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ loading var "_var311"
+  @ loading var "_var310"
   LDR R1, [FP, #-28]
   @ then reg move
   MOV R1, R0
@@ -3764,7 +3747,7 @@ print:
   @ else block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool True with name _var313
+  @ bool True with name _var312
   MOV R0, #1
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3776,8 +3759,8 @@ print:
 .Lthen_36:
   @ then block
   @ calling function print_int
-  @ preparing arg _var315
-  @ int 32 with name _var315
+  @ preparing arg _var314
+  @ int 32 with name _var314
   MOV R0, #32
   @ tagging int, reg R0
   LSL R0, R0, #3
@@ -3788,11 +3771,11 @@ print:
   MOV R1, R0
   LDMFD SP!, {R0}
   @ call end function print_int
-  @ loading var "_var314"
+  @ loading var "_var313"
   STMFD SP!, {R1}
   LDR R1, [FP, #-36]
   @ then reg move
-  @ loading var "_var316"
+  @ loading var "_var315"
   LDR R2, [FP, #-40]
   MOV R1, R2
   @ then dump regs
@@ -3807,7 +3790,7 @@ print:
   @ else block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool True with name _var317
+  @ bool True with name _var316
   MOV R0, #1
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3819,8 +3802,8 @@ print:
 .Lthen_39:
   @ then block
   @ calling function print
-  @ preparing arg _var319
-  @ int 1 with name _var319
+  @ preparing arg _var318
+  @ int 1 with name _var318
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
@@ -3831,11 +3814,11 @@ print:
   MOV R1, R0
   LDMFD SP!, {R0}
   @ call end function print
-  @ loading var "_var318"
+  @ loading var "_var317"
   STMFD SP!, {R1}
   LDR R1, [FP, #-44]
   @ then reg move
-  @ loading var "_var320"
+  @ loading var "_var319"
   LDR R2, [FP, #-48]
   MOV R1, R2
   @ then dump regs
@@ -3850,7 +3833,7 @@ print:
   @ else block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool True with name _var321
+  @ bool True with name _var320
   MOV R0, #1
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3862,14 +3845,14 @@ print:
 .Lthen_42:
   @ then block
   @ calling function print
-  @ preparing arg _var323
-  @ int 1 with name _var323
+  @ preparing arg _var322
+  @ int 1 with name _var322
   MOV R0, #1
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ preparing arg _var324
-  @ int 2 with name _var324
+  @ preparing arg _var323
+  @ int 2 with name _var323
   MOV R1, #2
   @ tagging int, reg R1
   LSL R1, R1, #3
@@ -3881,7 +3864,7 @@ print:
   MOV R2, R0
   LDMFD SP!, {R0, R1}
   @ call end function print
-  @ loading var "_var322"
+  @ loading var "_var321"
   STMFD SP!, {R1}
   LDR R1, [FP, #-52]
   @ then reg move
@@ -3898,7 +3881,7 @@ print:
   @ else block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool True with name _var326
+  @ bool True with name _var325
   MOV R0, #1
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3910,8 +3893,8 @@ print:
 .Lthen_45:
   @ then block
   @ calling function print_bool
-  @ preparing arg _var328
-  @ bool True with name _var328
+  @ preparing arg _var327
+  @ bool True with name _var327
   MOV R0, #1
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3922,11 +3905,11 @@ print:
   MOV R1, R0
   LDMFD SP!, {R0}
   @ call end function print_bool
-  @ loading var "_var327"
+  @ loading var "_var326"
   STMFD SP!, {R1}
   LDR R1, [FP, #-60]
   @ then reg move
-  @ loading var "_var329"
+  @ loading var "_var328"
   LDR R2, [FP, #-64]
   MOV R1, R2
   @ then dump regs
@@ -3941,7 +3924,7 @@ print:
   @ else block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool True with name _var330
+  @ bool True with name _var329
   MOV R0, #1
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3954,7 +3937,7 @@ print:
   @ then block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool False with name _var332
+  @ bool False with name _var331
   MOV R0, #0
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3965,12 +3948,12 @@ print:
   BNE .Lelse_52
 .Lthen_51:
   @ then block
-  @ int 13 with name _var334
+  @ int 13 with name _var333
   MOV R0, #13
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ loading var "_var333"
+  @ loading var "_var332"
   LDR R1, [FP, #-76]
   @ then reg move
   MOV R1, R0
@@ -3985,7 +3968,7 @@ print:
   @ else block
   @  -- if-then-else -- 
   @ calculating predicate
-  @ bool True with name _var335
+  @ bool True with name _var334
   MOV R0, #1
   @ tagging bool, reg R0
   LSL R0, R0, #3
@@ -3996,32 +3979,32 @@ print:
   BNE .Lelse_55
 .Lthen_54:
   @ then block
-  @ int 100 with name _var337
+  @ int 100 with name _var336
   MOV R0, #100
   @ tagging int, reg R0
   LSL R0, R0, #3
   ORR R0, R0, #2
-  @ int 30 with name _var338
+  @ int 30 with name _var337
   MOV R1, #30
   @ tagging int, reg R1
   LSL R1, R1, #3
   ORR R1, R1, #2
-  @ int 30 with name _var339
+  @ int 30 with name _var338
   MOV R2, #30
   @ tagging int, reg R2
   LSL R2, R2, #3
   ORR R2, R2, #2
-  @ int 30 with name _var340
+  @ int 30 with name _var339
   MOV R3, #30
   @ tagging int, reg R3
   LSL R3, R3, #3
   ORR R3, R3, #2
-  @ int 30 with name _var341
+  @ int 30 with name _var340
   MOV R4, #30
   @ tagging int, reg R4
   LSL R4, R4, #3
   ORR R4, R4, #2
-  @ int 30 with name _var342
+  @ int 30 with name _var341
   MOV R5, #30
   @ tagging int, reg R5
   LSL R5, R5, #3
@@ -4082,7 +4065,7 @@ print:
   @ tagging int, reg R8
   LSL R8, R8, #3
   ORR R8, R8, #2
-  @ loading var "_var336"
+  @ loading var "_var335"
   STMFD SP!, {R1}
   LDR R1, [FP, #-84]
   @ then reg move
@@ -4106,7 +4089,7 @@ print:
   @ else block
   @ List []
   MOV R0, #0
-  @ loading var "_var336"
+  @ loading var "_var335"
   LDR R1, [FP, #-84]
   @ else reg move
   MOV R1, R0
@@ -4117,10 +4100,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-84
 .Lend_56:
-  @ loading var "_var333"
+  @ loading var "_var332"
   LDR R1, [FP, #-76]
   @ else reg move
-  @ loading var "_var336"
+  @ loading var "_var335"
   LDR R0, [FP, #-84]
   MOV R1, R0
   @ else dump regs
@@ -4130,10 +4113,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-76
 .Lend_53:
-  @ loading var "_var331"
+  @ loading var "_var330"
   LDR R1, [FP, #-68]
   @ then reg move
-  @ loading var "_var333"
+  @ loading var "_var332"
   LDR R0, [FP, #-76]
   MOV R1, R0
   @ then dump regs
@@ -4147,7 +4130,7 @@ print:
   @ else block
   @ List []
   MOV R0, #0
-  @ loading var "_var331"
+  @ loading var "_var330"
   LDR R1, [FP, #-68]
   @ else reg move
   MOV R1, R0
@@ -4158,10 +4141,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-68
 .Lend_50:
-  @ loading var "_var327"
+  @ loading var "_var326"
   LDR R1, [FP, #-60]
   @ else reg move
-  @ loading var "_var331"
+  @ loading var "_var330"
   LDR R0, [FP, #-68]
   MOV R1, R0
   @ else dump regs
@@ -4171,10 +4154,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-60
 .Lend_47:
-  @ loading var "_var322"
+  @ loading var "_var321"
   LDR R1, [FP, #-52]
   @ else reg move
-  @ loading var "_var327"
+  @ loading var "_var326"
   LDR R0, [FP, #-60]
   MOV R1, R0
   @ else dump regs
@@ -4184,10 +4167,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-52
 .Lend_44:
-  @ loading var "_var318"
+  @ loading var "_var317"
   LDR R1, [FP, #-44]
   @ else reg move
-  @ loading var "_var322"
+  @ loading var "_var321"
   LDR R0, [FP, #-52]
   MOV R1, R0
   @ else dump regs
@@ -4197,10 +4180,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-44
 .Lend_41:
-  @ loading var "_var314"
+  @ loading var "_var313"
   LDR R1, [FP, #-36]
   @ else reg move
-  @ loading var "_var318"
+  @ loading var "_var317"
   LDR R0, [FP, #-44]
   MOV R1, R0
   @ else dump regs
@@ -4210,10 +4193,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-36
 .Lend_38:
-  @ loading var "_var311"
+  @ loading var "_var310"
   LDR R1, [FP, #-28]
   @ else reg move
-  @ loading var "_var314"
+  @ loading var "_var313"
   LDR R0, [FP, #-36]
   MOV R1, R0
   @ else dump regs
@@ -4223,10 +4206,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-28
 .Lend_35:
-  @ loading var "_var309"
+  @ loading var "_var308"
   LDR R1, [FP, #-20]
   @ then reg move
-  @ loading var "_var311"
+  @ loading var "_var310"
   LDR R0, [FP, #-28]
   MOV R1, R0
   @ then dump regs
@@ -4240,7 +4223,7 @@ print:
   @ else block
   @ List []
   MOV R0, #0
-  @ loading var "_var309"
+  @ loading var "_var308"
   LDR R1, [FP, #-20]
   @ else reg move
   MOV R1, R0
@@ -4251,10 +4234,10 @@ print:
   MOV SP, FP
   SUB SP, SP, #-20
 .Lend_32:
-  @ loading var "_var306"
+  @ loading var "_var305"
   LDR R2, [FP, #-12]
   @ else reg move
-  @ loading var "_var309"
+  @ loading var "_var308"
   LDR R0, [FP, #-20]
   MOV R2, R0
   @ else dump regs
