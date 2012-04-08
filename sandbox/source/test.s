@@ -29,7 +29,28 @@ scheme_entry:
   @ setting heap beginning to SL
    MOV SL, R2
    STR R0, [SL]
-  @ running internal function
+  @ interrupts
+   BL initialize_interrupts
+  @ run code
+   BL internal_scheme_entry
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+initialize_interrupts:
+  @ def:  initialize-interrupts
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
   @ interrupt start
   @ disable interrupts, REG_IME = 0
    LDR R5, REG_IME
@@ -58,10 +79,6 @@ scheme_entry:
    MOV R6, #0b1
    STR R6, [R5]
   @ interrupt end
-   loop1:
-   B loop1
-  @ run code
-   BL internal_scheme_entry
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}

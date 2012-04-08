@@ -33,7 +33,31 @@
   (comment "setting heap beginning to SL")
   (MOV SL, R2)
   (STR R0, [SL])
-  (comment "running internal function")
+
+  (comment "interrupts")
+  (BL initialize_interrupts)
+
+  (comment "run code")
+  (BL internal_scheme_entry)
+
+  (comment "epilog start")
+  (MOV SP, FP)
+  (LDMFD SP!, {FP})
+  (LDMFD SP!, {SL})
+  (LDMFD SP!, {R4, R5, R6, R7, R8, R9})
+  (LDMFD SP!, {LR})
+  (BX LR)
+  (comment "epilog end"))
+
+(assembler (initialize-interrupts)
+  (comment "prologue start")
+  (STMFD SP!, {LR})
+  (STMFD SP!, {R4, R5, R6, R7, R8, R9})
+  (STMFD SP!, {SL})
+  (STMFD SP!, {FP})
+  (MOV FP, SP)
+  (comment "prologue end")
+
   (comment "interrupt start")
   (comment "disable interrupts, REG_IME = 0")
   (LDR R5, REG_IME)
@@ -67,12 +91,6 @@
   (MOV R6, #0b1)
   (STR R6, [R5])
   (comment "interrupt end")
-
-  (loop1:)
-  (B loop1)
-
-  (comment "run code")
-  (BL internal_scheme_entry)
 
   (comment "epilog start")
   (MOV SP, FP)
