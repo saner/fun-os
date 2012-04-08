@@ -231,16 +231,65 @@ Stop-and-copy collector
 =====================
 Memory management
 
+Stack 1.5 MB = 1.5 * 1024 KB = 1536 KB = 1572864 B
+Heap  2.0 MB = 2.0 * 1024 KB = 2048 KB = 2097152 B
+
+Maximum 100 processes, each has 15 KB stack
+PROC_NO = 100
+PROC_STACK_SIZE = 15 KB
+
 SL (r12) points to C stack beginning which is in DTCM memory
 
 [SL] - current heap position
 
+SL + 4 - PCB segment
 
 
 =====================
 Processes
 
+PCB section:
+  4 B  - #processes
+  80 B - first PCB block
 
+In total PCB section = 4 B + 80 B * PROC_NO = 8004 B
+
+PCB block:
+  4 B - process no
+  4 B - process priority
+  4 B - process address
+  4 B - process state
+  64 B - registers ( 16 registers * 4 B )
+
+Process priority:
+  0 - system process
+  1 - normal process
+
+Process state:
+* 1 - Running - currently running
+* 2 - Waiting - currently waiting to be run
+* 3 - Blocked - stopped, not in the queue to be run
+
+
+    -------------------
+    |                 |
+    v                 |
+[ Waiting ] ---> [ Running ] 
+   |  ^
+   |  |
+   |  |
+   |  |
+   |  |
+   v  |
+[ Blocked ]
+
+API:
+  init-process proc - initialize process with a given address (name), process in state Blocked, returns process number
+  start-process-no no - changes a process state to Waiting
+  run-process-no no - changes a process state to Running
+  stop-process-no no - changes a process state to Waiting
+  block-process-no no - changes a process state to Blocked, a process in a Blocked state is not run
+  kill-process-no no - kills a process, its PCB is removed
 
 
 =====================

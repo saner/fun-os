@@ -1,5 +1,16 @@
   @ global functions
   .global scheme_entry
+  @ global constants
+  @ interrups start
+  REG_IME: .word 0x04000208
+  REG_IE: .word 0x04000210
+  REG_IF: .word 0x04000214
+  REG_TM0_DAT: .word 0x04000100
+  REG_TM0_CNT: .word 0x04000102
+  INT_HAND_SHIFT: .word 0x3ffc
+  INTERR_HANDLER: .word 0x0b003ffc
+  TM0_EN: .word 0b11000011
+  @ interrups end
   @ declarations of C functions
   @ declarations of global functions
 scheme_entry:
@@ -19,7 +30,74 @@ scheme_entry:
    MOV SL, R2
    STR R0, [SL]
   @ running internal function
+  @ interrupt start
+  @ disable interrupts, REG_IME = 0
+   LDR R5, REG_IME
+   MOV R6, #0
+   STR R6, [R5]
+  @ set TM0 value
+   LDR R5, REG_TM0_DAT
+   MOV R6, #0
+   STRH R6, [R5]
+  @ set TM0 control
+  @ enabled, irq, prescale 1024
+   LDR R5, REG_TM0_CNT
+   LDR R6, TM0_EN
+   STRh R6, [R5]
+  @ enable TM0
+   LDR R5, REG_IE
+   LDR R6, [R5]
+   ORR R6, R6, #0b0000
+   STR R6, [R5]
+  @ set interrupt handler
+   LDR R5, INTERR_HANDLER
+   ADR R6, interrupt_handler
+   STR R6, [R5]
+  @ enable interrupts, REG_IME = 1
+   LDR R5, REG_IME
+   MOV R6, #0b1
+   STR R6, [R5]
+  @ interrupt end
+   loop1:
+   B loop1
+  @ run code
    BL internal_scheme_entry
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+interrupt_handler:
+  @ def:  interrupt-handler
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+   LDR R5, REG_IF
+   LDR R6, [R5]
+   vblank:
+   MOV R7, R6
+   AND R7, R7, #0b0001
+   CMP R7, #0b0001
+   BNE timer
+   MOV R8, #0b0001
+   timer:
+   MOV R7, R6
+   AND R7, R7, #0b1000
+   CMP R7, #0b1000
+   BNE end
+   ORR R8, R8, #0b1000
+   MOV R0, #55
+   BL print_int
+   end:
+   STR R8, [R5]
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
