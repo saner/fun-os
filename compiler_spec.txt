@@ -244,15 +244,36 @@ SL (r12) points to C stack beginning which is in DTCM memory
 
 SL + 4 - PCB segment
 
+=====================
+Interrupts
+
+State of the stack when ISR is called
+
+-------
+| R0  |
+-------
+| R1  |
+-------
+| R2  |
+-------
+| R3  |
+-------
+| R12 |
+-------
+| LR  |
+|     |
+
 
 =====================
 Processes
 
 PCB section:
-  4 B  - #processes
+  4 B - #processes
+  4 B - number of a processor running now
+  100 B - active PCBs, -1 no active, >= 0 - proc no
   80 B - first PCB block
 
-In total PCB section = 4 B + 80 B * PROC_NO = 8004 B
+In total PCB section = 4 B + 4 B + 4 B * 100 + 80 B * PROC_NO = 8412 B
 
 PCB block:
   4 B - process no
@@ -284,12 +305,16 @@ Process state:
 [ Blocked ]
 
 API:
-  init-process proc - initialize process with a given address (name), process in state Blocked, returns process number
-  start-process-no no - changes a process state to Waiting
-  run-process-no no - changes a process state to Running
-  stop-process-no no - changes a process state to Waiting
-  block-process-no no - changes a process state to Blocked, a process in a Blocked state is not run
-  kill-process-no no - kills a process, its PCB is removed
+  public:
+    add-process proc - adds process with a given address (name), process in state Blocked, returns process number
+    remove-process no - removes process with a given number
+    start-process no - changes a process state to Waiting
+    stop-process no - changes a process state to Blocked
+  private:
+    initialize-processes - returns process no which should be run
+    select-process - returns process no which should be run
+    load-process no - loads process state from PCB block
+    unload-process no - unloads process and save its state to PCB block
 
 
 =====================

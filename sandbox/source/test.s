@@ -11,6 +11,9 @@
   INTERR_HANDLER: .word 0x0b003ffc
   TM0_EN: .word 0b11000011
   @ interrups end
+  @ stack size for a process
+  DATA_START: .word 0x0b000000
+  STACK_SIZE: .word 15360
   @ declarations of C functions
   @ declarations of global functions
 scheme_entry:
@@ -22,17 +25,236 @@ scheme_entry:
    STMFD SP!, {FP}
    MOV FP, SP
   @ prologue end
-   MOV R2, SP
+  @ all necessary data kept in dtcm
+   LDR SL, DATA_START
   @ setting stack beginning to SP
    MOV SP, R0
    ADD SP, SP, R1
   @ setting heap beginning to SL
-   MOV SL, R2
    STR R0, [SL]
+  @ processes
+   BL initialize_processes
   @ interrupts
    BL initialize_interrupts
+   MOV R0, #-33
+   BL print_int
+   MOV R0, PC
+   BL print_int
+   MOV R0, #-33
+   BL print_int
+   MOV R0, #0
+   MOV R1, #1
+   MOV R2, #2
+   MOV R3, #3
+   MOV R12, #12
+   B loop1
+   loop1:
+   B loop1
   @ run code
    BL internal_scheme_entry
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+initialize_processes:
+  @ def:  initialize-processes
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+  @ there are no processes running
+   MOV R0, #0
+   STR R0, [SL, #4]
+  @ active process no
+   MOV R0, #-1
+   STR R0, [SL, #8]
+  @ set active proc list to all -1
+   MOV R0, SL
+   ADD R0, R0, #8
+   MOV R2, #-1
+   MOV R1, #1
+   MOV R3, #4
+   active_proc_loop:
+   CMP R1, #100
+   BGT active_proc_end
+   STR R2, [R0, R3]
+   ADD R1, R1, #1
+   ADD R3, R3, #4
+   B active_proc_loop
+   active_proc_end:
+  @ add idle process
+   ADR R0, idle_process
+   BL add_process
+  @ start idle process
+  @ idle proc number in R0
+   BL start_process
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+start_process:
+  @ def:  start-process proc-no
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+  @ change state to waiting
+   MOV R1, #2
+   BL change_process_state
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+change_process_state:
+  @ def:  change-process-state proc-no new-state
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+  @ copy proc no
+   MOV R9, R0
+   MOV R8, R1
+  @ find a PCB block
+   MOV R0, SL
+   ADD R0, R0, #8
+   MOV R1, #1
+   MOV R3, #4
+   proc_pcb_loop:
+   MUL R4, R1, R3
+   LDR R2, [R0, R4]
+   CMP R2, R9
+   BEQ proc_pcb_found
+   ADD R1, R1, #1
+   B proc_pcb_loop
+   proc_pcb_found:
+  @ set PCB block
+   MOV R0, SL
+   ADD R0, R0, #408
+   SUB R7, R1, #1
+   MOV R3, #80
+   MUL R6, R7, R3
+   ADD R0, R0, R6
+  @ setting proc state
+  @ proc state, 1 - Running, 2 - Waiting, 3 - Blocked
+   STR R8, [R0, #16]
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+add_process:
+  @ def:  add-process proc
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+  @ save proc addr
+   MOV R9, R0
+  @ ERROR: - FIX THIS
+  @ ERROR: problem when > 100 processes
+  @ find a free PCB block
+   MOV R0, SL
+   ADD R0, R0, #8
+   MOV R1, #1
+   MOV R3, #4
+   free_proc_pcb_loop:
+   MUL R4, R1, R3
+   LDR R2, [R0, R4]
+   CMP R2, #-1
+   BEQ free_proc_pcb_found
+   ADD R1, R1, #1
+   B free_proc_pcb_loop
+   free_proc_pcb_found:
+   free_proc_pcb_end:
+  @ get a new process no
+   LDR R5, [SL, #4]
+   ADD R5, R5, #1
+  @ set a proc count
+   STR R5, [SL, #4]
+  @ set a new process block no
+   STR R5, [R0, R4]
+  @ set PCB block
+   MOV R0, SL
+   ADD R0, R0, #408
+   SUB R8, R1, #1
+   MOV R3, #80
+   MUL R6, R8, R3
+   ADD R0, R0, R6
+  @ setting
+  @ proc no
+   STR R5, [R0, #4]
+  @ proc priority
+   MOV R2, #1
+   STR R2, [R0, #8]
+  @ proc address
+   STR R9, [R0, #12]
+  @ proc state, 1 - Running, 2 - Waiting, 3 - Blocked
+   MOV R2, #3
+   STR R2, [R0, #16]
+  @ reg block
+   ADD R0, R0, #16
+  @ SP reg
+   LDR R7, [SL]
+   LDR R6, STACK_SIZE
+   MUL R6, R1, R6
+   ADD R6, R6, R7
+   STR R6, [R0, #52]
+  @ PC reg
+   STR R9, [R0, #64]
+  @ other regs not set
+  @ return proc no
+   MOV R0, R5
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+idle_process:
+  @ def:  idle-process
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+   idle_inf_loop:
+   B idle_inf_loop
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
