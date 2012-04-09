@@ -115,7 +115,11 @@ start_process:
    MOV FP, SP
   @ prologue end
   @ change state to waiting
+  @ set R1 to Waiting
    MOV R1, #2
+  @ tag int
+   LSL R1, #3
+   ORR R1, R1, #2
    BL change_process_state
   @ epilog start
    MOV SP, FP
@@ -137,7 +141,12 @@ change_process_state:
   @ prologue end
   @ copy proc no
    MOV R9, R0
+  @ untag int
+   LSR R9, #3
+  @ copy state
    MOV R8, R1
+  @ untag int
+   LSR R8, #3
   @ find a PCB block
    MOV R0, SL
    ADD R0, R0, #8
@@ -235,6 +244,9 @@ add_process:
   @ other regs not set
   @ return proc no
    MOV R0, R5
+  @ tag int
+   LSL R0, #3
+   ORR R0, R0, #2
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}

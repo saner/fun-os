@@ -130,7 +130,11 @@
   (comment "prologue end")
 
   (comment "change state to waiting")
+  (comment "set R1 to Waiting")
   (MOV R1, #2)
+  (comment "tag int")
+  (LSL R1, #3)
+  (ORR R1, R1, #2)
   (BL change_process_state)
 
   (comment "epilog start")
@@ -153,7 +157,12 @@
 
   (comment "copy proc no")
   (MOV R9, R0)
+  (comment "untag int")
+  (LSR R9, #3)
+  (comment "copy state")
   (MOV R8, R1)
+  (comment "untag int")
+  (LSR R8, #3)
 
   (comment "find a PCB block")
   (MOV R0, SL)
@@ -263,6 +272,9 @@
 
   (comment "return proc no")
   (MOV R0, R5)
+  (comment "tag int")
+  (LSL R0, #3)
+  (ORR R0, R0, #2)
 
   (comment "epilog start")
   (MOV SP, FP)
