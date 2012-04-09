@@ -93,9 +93,14 @@ initialize_processes:
   @ add idle process
    ADR R0, idle_process
    BL add_process
+   ADR R0, idle_process
+   BL add_process
   @ start idle process
   @ idle proc number in R0
    BL start_process
+   MOV R0, #1
+   LSL R0, #3
+   BL remove_process
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
@@ -117,6 +122,31 @@ start_process:
   @ change state to waiting
   @ set R1 to Waiting
    MOV R1, #2
+  @ tag int
+   LSL R1, #3
+   ORR R1, R1, #2
+   BL change_process_state
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+stop_process:
+  @ def:  stop-process proc-no
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+  @ change state to Blocked
+  @ set R1 to Blocked
+   MOV R1, #3
   @ tag int
    LSL R1, #3
    ORR R1, R1, #2
@@ -247,6 +277,48 @@ add_process:
   @ tag int
    LSL R0, #3
    ORR R0, R0, #2
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+remove_process:
+  @ def:  remove-process proc-no
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+  @ copy proc no
+   MOV R9, R0
+  @ untag int
+   LSR R9, #3
+  @ find a PCB block
+   MOV R0, SL
+   ADD R0, R0, #8
+   MOV R1, #1
+   MOV R3, #4
+   rem_proc_pcb_loop:
+   MUL R4, R1, R3
+   LDR R2, [R0, R4]
+   CMP R2, R9
+   BEQ rem_proc_pcb_found
+   ADD R1, R1, #1
+   B rem_proc_pcb_loop
+   rem_proc_pcb_found:
+  @ update process no
+   LDR R5, [SL, #4]
+   SUB R5, R5, #1
+   STR R5, [SL, #4]
+  @ free PCB block
+   MOV R2, #-1
+   STR R2, [R0, R4]
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
