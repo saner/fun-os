@@ -116,7 +116,7 @@
 
   (comment "start idle process")
   (comment "idle proc number in R0")
-  (BL start_process)
+  (BL enable_process)
 
   (comment "epilog start")
   (MOV SP, FP)
@@ -127,7 +127,7 @@
   (BX LR)
   (comment "epilog end"))
 
-(assembler (start-process proc-no)
+(assembler (enable-process proc-no)
   (comment "prologue start")
   (STMFD SP!, {LR})
   (STMFD SP!, {R4, R5, R6, R7, R8, R9})
@@ -153,7 +153,7 @@
   (BX LR)
   (comment "epilog end"))
 
-(assembler (stop-process proc-no)
+(assembler (disable-process proc-no)
   (comment "prologue start")
   (STMFD SP!, {LR})
   (STMFD SP!, {R4, R5, R6, R7, R8, R9})
@@ -389,6 +389,24 @@
 
   (comment "process end"))
 
+(assembler (idle-process-2)
+
+  (MOV R0, #0)
+  (MOV R1, #11)
+  (MOV R2, #21)
+  (MOV R3, #31)
+  (MOV R4, #41)
+  (MOV R5, #51)
+  (MOV R6, #61)
+  (MOV R7, #71)
+  (MOV R8, #81)
+  (MOV R9, #91)
+  (MOV R12, #121)
+
+  (idle_2_inf_loop:)
+  (B idle_2_inf_loop)
+
+  (comment "process end"))
 
 (assembler (initialize-interrupts)
   (comment "prologue start")
@@ -477,7 +495,10 @@
   (comment "process no in R0")
   (MOV R0, #199)
   (BL print_int)
-  (MOV R0, #1)
+  (BL select_process)
+  (MOV R9, R0)
+  (BL print_int)
+  (MOV R0, R9)
   (BL run_process)
 
   (end:)

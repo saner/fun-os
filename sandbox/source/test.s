@@ -102,7 +102,7 @@ initialize_processes:
    BL add_process
   @ start idle process
   @ idle proc number in R0
-   BL start_process
+   BL enable_process
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
@@ -112,8 +112,8 @@ initialize_processes:
    BX LR
   @ epilog end
   
-start_process:
-  @ def:  start-process proc-no
+enable_process:
+  @ def:  enable-process proc-no
   @ prologue start
    STMFD SP!, {LR}
    STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -137,8 +137,8 @@ start_process:
    BX LR
   @ epilog end
   
-stop_process:
-  @ def:  stop-process proc-no
+disable_process:
+  @ def:  disable-process proc-no
   @ prologue start
    STMFD SP!, {LR}
    STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -353,6 +353,23 @@ idle_process:
    B idle_inf_loop
   @ process end
   
+idle_process_2:
+  @ def:  idle-process-2
+   MOV R0, #0
+   MOV R1, #11
+   MOV R2, #21
+   MOV R3, #31
+   MOV R4, #41
+   MOV R5, #51
+   MOV R6, #61
+   MOV R7, #71
+   MOV R8, #81
+   MOV R9, #91
+   MOV R12, #121
+   idle_2_inf_loop:
+   B idle_2_inf_loop
+  @ process end
+  
 initialize_interrupts:
   @ def:  initialize-interrupts
   @ prologue start
@@ -430,7 +447,10 @@ interrupt_handler:
   @ process no in R0
    MOV R0, #199
    BL print_int
-   MOV R0, #1
+   BL select_process
+   MOV R9, R0
+   BL print_int
+   MOV R0, R9
    BL run_process
    end:
    STR R8, [R5]

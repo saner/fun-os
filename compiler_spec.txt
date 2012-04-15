@@ -309,8 +309,8 @@ API:
   public:
     add-process proc - adds process with a given address (name), process in state Blocked, returns process number
     remove-process no - removes process with a given number
-    start-process no - changes a process state to Waiting
-    stop-process no - changes a process state to Blocked
+    enable-process no - changes a process state to Waiting
+    disable-process no - changes a process state to Blocked
   private:
     initialize-processes - returns process no which should be run
     select-process - returns process no which should be run
