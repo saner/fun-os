@@ -42,7 +42,7 @@ scheme_entry:
    BL print_int
    MOV R0, #-33
    BL print_int
-   MOV R0, LR
+   MOV R0, SP
    BL print_int
    MOV R0, #0
    MOV R1, #1
@@ -263,16 +263,22 @@ add_process:
   @ proc state, 1 - Running, 2 - Waiting, 3 - Blocked
    MOV R2, #3
    STR R2, [R0, #16]
+  @ CPSR - System mode
+   MOV R2, #0b11111
+   STR R2, [R0, #20]
   @ reg block
    ADD R0, R0, #20
+  @ SL reg
+   STR SL, [R0, #44]
   @ SP reg
    LDR R7, [SL]
    LDR R6, STACK_SIZE
    MUL R6, R1, R6
    ADD R6, R6, R7
-   STR R6, [R0, #52]
+   STR R6, [R0, #56]
   @ PC reg
-   STR R9, [R0, #64]
+   ADD R8, R9, #4
+   STR R8, [R0, #64]
   @ other regs not set
   @ return proc no
    MOV R0, R5
@@ -332,34 +338,20 @@ remove_process:
   
 idle_process:
   @ def:  idle-process
-  @ prologue start
-   STMFD SP!, {LR}
-   STMFD SP!, {R4, R5, R6, R7, R8, R9}
-   STMFD SP!, {SL}
-   STMFD SP!, {FP}
-   MOV FP, SP
-  @ prologue end
    MOV R0, #0
-   MOV R1, #1
-   MOV R2, #2
-   MOV R3, #3
-   MOV R4, #4
-   MOV R5, #5
-   MOV R6, #6
-   MOV R7, #7
-   MOV R8, #8
-   MOV R9, #9
-   MOV R12, #12
+   MOV R1, #10
+   MOV R2, #20
+   MOV R3, #30
+   MOV R4, #40
+   MOV R5, #50
+   MOV R6, #60
+   MOV R7, #70
+   MOV R8, #80
+   MOV R9, #90
+   MOV R12, #120
    idle_inf_loop:
    B idle_inf_loop
-  @ epilog start
-   MOV SP, FP
-   LDMFD SP!, {FP}
-   LDMFD SP!, {SL}
-   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
-   LDMFD SP!, {LR}
-   BX LR
-  @ epilog end
+  @ process end
   
 initialize_interrupts:
   @ def:  initialize-interrupts
@@ -387,7 +379,8 @@ initialize_interrupts:
   @ enable TM0
    LDR R5, REG_IE
    LDR R6, [R5]
-   ORR R6, R6, #0b0000
+   ORR R6, R6, #0b1000
+   MOV R6, #0b1000
    STR R6, [R5]
   @ set interrupt handler
    LDR R5, INTERR_HANDLER
@@ -435,6 +428,8 @@ interrupt_handler:
   @ don't need to be saved on the stack
   @ select process no to run
   @ process no in R0
+   MOV R0, #199
+   BL print_int
    MOV R0, #1
    BL run_process
    end:
