@@ -280,6 +280,7 @@ PCB block:
   4 B - process priority
   4 B - process address
   4 B - process state
+  4 B - CPSR
   64 B - registers ( 16 registers * 4 B )
 
 Process priority:
@@ -313,8 +314,7 @@ API:
   private:
     initialize-processes - returns process no which should be run
     select-process - returns process no which should be run
-    load-process no - loads process state from PCB block
-    unload-process no - unloads process and save its state to PCB block
+    run-process no - save current process and loads process state from PCB block
 
 
 =====================

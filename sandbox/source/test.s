@@ -42,12 +42,19 @@ scheme_entry:
    BL print_int
    MOV R0, #-33
    BL print_int
+   MOV R0, LR
+   BL print_int
    MOV R0, #0
    MOV R1, #1
    MOV R2, #2
    MOV R3, #3
+   MOV R4, #4
+   MOV R5, #5
+   MOV R6, #6
+   MOV R7, #7
+   MOV R8, #8
+   MOV R9, #9
    MOV R12, #12
-   B loop1
    loop1:
    B loop1
   @ run code
@@ -93,14 +100,9 @@ initialize_processes:
   @ add idle process
    ADR R0, idle_process
    BL add_process
-   ADR R0, idle_process
-   BL add_process
   @ start idle process
   @ idle proc number in R0
    BL start_process
-   MOV R0, #1
-   LSL R0, #3
-   BL remove_process
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
@@ -194,7 +196,7 @@ change_process_state:
    MOV R0, SL
    ADD R0, R0, #408
    SUB R7, R1, #1
-   MOV R3, #80
+   MOV R3, #84
    MUL R6, R7, R3
    ADD R0, R0, R6
   @ setting proc state
@@ -247,7 +249,7 @@ add_process:
    MOV R0, SL
    ADD R0, R0, #408
    SUB R8, R1, #1
-   MOV R3, #80
+   MOV R3, #84
    MUL R6, R8, R3
    ADD R0, R0, R6
   @ setting
@@ -262,7 +264,7 @@ add_process:
    MOV R2, #3
    STR R2, [R0, #16]
   @ reg block
-   ADD R0, R0, #16
+   ADD R0, R0, #20
   @ SP reg
    LDR R7, [SL]
    LDR R6, STACK_SIZE
@@ -337,6 +339,17 @@ idle_process:
    STMFD SP!, {FP}
    MOV FP, SP
   @ prologue end
+   MOV R0, #0
+   MOV R1, #1
+   MOV R2, #2
+   MOV R3, #3
+   MOV R4, #4
+   MOV R5, #5
+   MOV R6, #6
+   MOV R7, #7
+   MOV R8, #8
+   MOV R9, #9
+   MOV R12, #12
    idle_inf_loop:
    B idle_inf_loop
   @ epilog start
@@ -417,10 +430,261 @@ interrupt_handler:
    CMP R7, #0b1000
    BNE end
    ORR R8, R8, #0b1000
-   MOV R0, #55
-   BL print_int
+  @ low level operations
+  @ reg r0-r3 not used later
+  @ don't need to be saved on the stack
+  @ select process no to run
+  @ process no in R0
+   MOV R0, #1
+   BL run_process
    end:
    STR R8, [R5]
+  @ epilog start
+   MOV SP, FP
+   LDMFD SP!, {FP}
+   LDMFD SP!, {SL}
+   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
+   LDMFD SP!, {LR}
+   BX LR
+  @ epilog end
+  
+run_process:
+  @ def:  run-process no
+  @ it is called from interrupt handler
+  @ copy active process to PCB block
+   LDR R4, [SL, #8]
+   CMP R4, #-1
+  @ no active process, just load a new process
+   BEQ run_process_load_proc
+  @ find active proc PCB block
+   ADD R1, SL, #8
+   MOV R2, #0
+   run_proc_active_pcb_find:
+   ADD R1, R1, #4
+   ADD R2, R2, #1
+   LDR R3, [R1]
+   CMP R4, R3
+   BEQ run_proc_active_pcb_found
+   B run_proc_active_pcb_find
+   run_proc_active_pcb_found:
+  @ active pcb found
+   SUB R2, R2, #1
+   MOV R3, #84
+   MUL R1, R2, R3
+   ADD R2, SL, #428
+   ADD R2, R1, R2
+  @ R2 points to CPSR positionin PCB
+  @ save active process to pcb
+  @ state -> Waiting
+   MOV R1, #2
+   STR R1, [R2, #-4]
+  @ CPSR
+   MRS R1, SPSR
+   STR R1, [R2]
+  @ R0
+   LDR R1, [SP, #36]
+   STR R1, [R2, #4]
+  @ R1
+   LDR R1, [SP, #40]
+   STR R1, [R2, #8]
+  @ R2
+   LDR R1, [SP, #44]
+   STR R1, [R2, #12]
+  @ R3
+   LDR R1, [SP, #48]
+   STR R1, [R2, #16]
+  @ R4
+   LDR R1, [SP, #8]
+   STR R1, [R2, #20]
+  @ R5
+   LDR R1, [SP, #12]
+   STR R1, [R2, #24]
+  @ R6
+   LDR R1, [SP, #16]
+   STR R1, [R2, #28]
+  @ R7
+   LDR R1, [SP, #20]
+   STR R1, [R2, #32]
+  @ R8
+   LDR R1, [SP, #24]
+   STR R1, [R2, #36]
+  @ R9
+   LDR R1, [SP, #28]
+   STR R1, [R2, #40]
+  @ starting from R10 special registers
+  @ R10 - SL
+   LDR R1, [SP, #4]
+   STR R1, [R2, #44]
+  @ R11 - FP
+   LDR R1, [SP]
+   STR R1, [R2, #48]
+  @ R12 - IP
+   LDR R1, [SP, #52]
+   STR R1, [R2, #52]
+  @ R13 - SP
+  @ go back to SYSTEM mode
+  @ to access process SP
+   MRS R3, CPSR
+   ORR R1, R3, #0b11111
+   MSR CPSR, R1
+   MOV R1, SP
+   MSR CPSR, R3
+   STR R1, [R2, #56]
+  @ R14 - LR
+   MRS R3, CPSR
+   ORR R1, R3, #0b11111
+   MSR CPSR, R1
+   MOV R1, LR
+   MSR CPSR, R3
+   STR R1, [R2, #60]
+  @ R15 - PC
+   LDR R1, [SP, #56]
+   STR R1, [R2, #64]
+   run_process_load_proc:
+  @ find new proc PCB block
+   ADD R1, SL, #8
+   MOV R2, #0
+   run_proc_new_pcb_find:
+   ADD R1, R1, #4
+   ADD R2, R2, #1
+   LDR R3, [R1]
+   CMP R0, R3
+   BEQ run_proc_new_pcb_found
+   B run_proc_new_pcb_find
+   run_proc_new_pcb_found:
+  @ new pcb found
+   SUB R2, R2, #1
+   MOV R3, #84
+   MUL R1, R2, R3
+   ADD R2, SL, #428
+   ADD R2, R1, R2
+  @ R2 points to CPSR positionin PCB
+  @ load new process from pcb
+  @ state -> Running
+   MOV R1, #1
+   STR R1, [R2, #-4]
+  @ CPSR
+   LDR R1, [R2]
+   MSR SPSR, R1
+  @ R0
+   LDR R1, [R2, #4]
+   STR R1, [SP, #36]
+  @ R1
+   LDR R1, [R2, #8]
+   STR R1, [SP, #40]
+  @ R2
+   LDR R1, [R2, #12]
+   STR R1, [SP, #44]
+  @ R3
+   LDR R1, [R2, #16]
+   STR R1, [SP, #48]
+  @ R4
+   LDR R1, [R2, #20]
+   STR R1, [SP, #8]
+  @ R5
+   LDR R1, [R2, #24]
+   STR R1, [SP, #12]
+  @ R6
+   LDR R1, [R2, #28]
+   STR R1, [SP, #16]
+  @ R7
+   LDR R1, [R2, #32]
+   STR R1, [SP, #20]
+  @ R8
+   LDR R1, [R2, #36]
+   STR R1, [SP, #24]
+  @ R9
+   LDR R1, [R2, #40]
+   STR R1, [SP, #28]
+  @ starting from R10 special registers
+  @ R10 - SL
+   LDR R1, [R2, #44]
+   STR R1, [SP, #4]
+  @ R11 - FP
+   LDR R1, [R2, #48]
+   STR R1, [SP]
+  @ R12 - IP
+   LDR R1, [R2, #52]
+   STR R1, [SP, #52]
+  @ R13 - SP
+  @ go back to SYSTEM mode
+  @ to set process SP
+   MRS R3, CPSR
+   ORR R1, R3, #0b11111
+   MSR CPSR, R1
+   LDR R1, [R2, #56]
+   MOV SP, R1
+   MSR CPSR, R3
+  @ R14 - LR
+   MRS R3, CPSR
+   ORR R1, R3, #0b11111
+   MSR CPSR, R1
+   LDR R1, [R2, #60]
+   MOV LR, R1
+   MSR CPSR, R3
+  @ R15 - PC
+   LDR R1, [R2, #64]
+   STR R1, [SP, #56]
+  @ set active process no
+   STR R0, [SL, #8]
+   run_proc_end:
+  
+select_process:
+  @ def:  select-process
+  @ it is called from interrupt handler
+  @ prologue start
+   STMFD SP!, {LR}
+   STMFD SP!, {R4, R5, R6, R7, R8, R9}
+   STMFD SP!, {SL}
+   STMFD SP!, {FP}
+   MOV FP, SP
+  @ prologue end
+  @ check if there is a running process
+   LDR R0, [SL, #8]
+   CMP R0, #-1
+   BEQ sele_proc_sel_no_running
+   sele_proc_sel_is_running:
+  @ find proc PCB block
+   ADD R1, SL, #8
+   MOV R2, #0
+   sele_proc_sel_find:
+   ADD R1, R1, #4
+   ADD R2, R2, #1
+   LDR R3, [R1]
+   CMP R0, R3
+   BEQ sele_proc_next_find
+   B sele_proc_sel_find
+   sele_proc_sel_no_running:
+   ADD R1, SL, #8
+   MOV R2, #0
+   sele_proc_next_find:
+  @ current process PCB found
+  @ find next waiting process
+   ADD R1, R1, #4
+   ADD R2, R2, #1
+   CMP R2, #100
+   BGT sele_proc_next_not_found
+   LDR R3, [R1]
+   CMP R3, #-1
+   BEQ sele_proc_next_find
+  @ we have PCB block
+  @ check if a state of the process is waiting
+  @ get PCB block
+   ADD R4, SL, #408
+   SUB R5, R2, #1
+   MOV R3, #84
+   MUL R6, R5, R3
+   ADD R4, R4, R6
+   LDR R7, [R4, #16]
+   CMP R7, #3
+   BNE sele_proc_next_found
+   B sele_proc_next_find
+   sele_proc_next_not_found:
+  @ did not find any process
+  @ start searching from the beginning
+   B sele_proc_sel_no_running
+   sele_proc_next_found:
+   MOV R0, R2
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
