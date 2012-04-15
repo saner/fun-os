@@ -116,6 +116,12 @@
 
   (comment "start idle process")
   (comment "idle proc number in R0")
+  (comment "add idle process")
+  (ADR R0, idle_process)
+  (BL add_process)
+
+  (comment "start idle process")
+  (comment "idle proc number in R0")
   (BL enable_process)
 
   (comment "epilog start")
@@ -190,8 +196,6 @@
 
   (comment "copy proc no")
   (MOV R9, R0)
-  (comment "untag int")
-  (LSR R9, #3)
   (comment "copy state")
   (MOV R8, R1)
   (comment "untag int")
@@ -263,7 +267,13 @@
 
   (comment "get a new process no")
   (LDR R5, [SL, #4])
+  (comment "untag int")
+  (LSR R5, #3)
+  (comment "increase")
   (ADD R5, R5, #1)
+  (comment "tag int")
+  (LSL R5, #3)
+  (ORR R5, R5, #2)
 
   (comment "set a proc count")
   (STR R5, [SL, #4])
@@ -289,6 +299,9 @@
   (STR R9, [R0, #12])
   (comment "proc state, 1 - Running, 2 - Waiting, 3 - Blocked")
   (MOV R2, #3)
+  (comment "tag int")
+  (LSL R2, #3)
+  (ORR R2, R2, #2)
   (STR R2, [R0, #16])
   (comment "CPSR - System mode")
   (MOV R2, #0b11111)
@@ -311,9 +324,6 @@
 
   (comment "return proc no")
   (MOV R0, R5)
-  (comment "tag int")
-  (LSL R0, #3)
-  (ORR R0, R0, #2)
 
   (comment "epilog start")
   (MOV SP, FP)
@@ -335,8 +345,6 @@
 
   (comment "copy proc no")
   (MOV R9, R0)
-  (comment "untag int")
-  (LSR R9, #3)
 
   (comment "find a PCB block")
   (MOV R0, SL)
@@ -354,7 +362,13 @@
 
   (comment "update process no")
   (LDR R5, [SL, #4])
+  (comment "untag int")
+  (LSR R5, #3)
+  (comment "decrease")
   (SUB R5, R5, #1)
+  (comment "tag int")
+  (LSL R5, #3)
+  (ORR R5, R5, #2)
   (STR R5, [SL, #4])
 
   (comment "free PCB block")
@@ -546,6 +560,9 @@
   (comment "save active process to pcb")
   (comment "state -> Waiting")
   (MOV R1, #2)
+  (comment "tag int")
+  (LSL R1, #3)
+  (ORR R1, R1, #2)
   (STR R1, [R2, #-4])
   (comment "CPSR")
   (MRS R1, SPSR)
@@ -644,6 +661,9 @@
   (comment "load new process from pcb")
   (comment "state -> Running")
   (MOV R1, #1)
+  (comment "tag int")
+  (LSL R1, #3)
+  (ORR R1, R1, #2)
   (STR R1, [R2, #-4])
   (comment "CPSR")
   (LDR R1, [R2])
@@ -771,7 +791,11 @@
   (MUL R6, R5, R3)
   (ADD R4, R4, R6)
   (LDR R7, [R4, #16])
-  (CMP R7, #3)
+  (MOV R8, #3)
+  (comment "tag int")
+  (LSL R8, #3)
+  (ORR R8, R8, #2)
+  (CMP R7, R8)
   (BNE sele_proc_next_found)
   (B sele_proc_next_find)
 
@@ -781,7 +805,7 @@
   (B sele_proc_sel_no_running)
 
   (sele_proc_next_found:)
-  (MOV R0, R2)
+  (LDR R0, [R4, #4])
 
   (comment "epilog start")
   (MOV SP, FP)

@@ -102,6 +102,11 @@ initialize_processes:
    BL add_process
   @ start idle process
   @ idle proc number in R0
+  @ add idle process
+   ADR R0, idle_process
+   BL add_process
+  @ start idle process
+  @ idle proc number in R0
    BL enable_process
   @ epilog start
    MOV SP, FP
@@ -173,8 +178,6 @@ change_process_state:
   @ prologue end
   @ copy proc no
    MOV R9, R0
-  @ untag int
-   LSR R9, #3
   @ copy state
    MOV R8, R1
   @ untag int
@@ -240,7 +243,13 @@ add_process:
    free_proc_pcb_end:
   @ get a new process no
    LDR R5, [SL, #4]
+  @ untag int
+   LSR R5, #3
+  @ increase
    ADD R5, R5, #1
+  @ tag int
+   LSL R5, #3
+   ORR R5, R5, #2
   @ set a proc count
    STR R5, [SL, #4]
   @ set a new process block no
@@ -262,6 +271,9 @@ add_process:
    STR R9, [R0, #12]
   @ proc state, 1 - Running, 2 - Waiting, 3 - Blocked
    MOV R2, #3
+  @ tag int
+   LSL R2, #3
+   ORR R2, R2, #2
    STR R2, [R0, #16]
   @ CPSR - System mode
    MOV R2, #0b11111
@@ -282,9 +294,6 @@ add_process:
   @ other regs not set
   @ return proc no
    MOV R0, R5
-  @ tag int
-   LSL R0, #3
-   ORR R0, R0, #2
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
@@ -305,8 +314,6 @@ remove_process:
   @ prologue end
   @ copy proc no
    MOV R9, R0
-  @ untag int
-   LSR R9, #3
   @ find a PCB block
    MOV R0, SL
    ADD R0, R0, #8
@@ -322,7 +329,13 @@ remove_process:
    rem_proc_pcb_found:
   @ update process no
    LDR R5, [SL, #4]
+  @ untag int
+   LSR R5, #3
+  @ decrease
    SUB R5, R5, #1
+  @ tag int
+   LSL R5, #3
+   ORR R5, R5, #2
    STR R5, [SL, #4]
   @ free PCB block
    MOV R2, #-1
@@ -492,6 +505,9 @@ run_process:
   @ save active process to pcb
   @ state -> Waiting
    MOV R1, #2
+  @ tag int
+   LSL R1, #3
+   ORR R1, R1, #2
    STR R1, [R2, #-4]
   @ CPSR
    MRS R1, SPSR
@@ -577,6 +593,9 @@ run_process:
   @ load new process from pcb
   @ state -> Running
    MOV R1, #1
+  @ tag int
+   LSL R1, #3
+   ORR R1, R1, #2
    STR R1, [R2, #-4]
   @ CPSR
    LDR R1, [R2]
@@ -691,7 +710,11 @@ select_process:
    MUL R6, R5, R3
    ADD R4, R4, R6
    LDR R7, [R4, #16]
-   CMP R7, #3
+   MOV R8, #3
+  @ tag int
+   LSL R8, #3
+   ORR R8, R8, #2
+   CMP R7, R8
    BNE sele_proc_next_found
    B sele_proc_next_find
    sele_proc_next_not_found:
@@ -699,7 +722,7 @@ select_process:
   @ start searching from the beginning
    B sele_proc_sel_no_running
    sele_proc_next_found:
-   MOV R0, R2
+   LDR R0, [R4, #4]
   @ epilog start
    MOV SP, FP
    LDMFD SP!, {FP}
