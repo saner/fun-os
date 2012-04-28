@@ -249,18 +249,20 @@ Interrupts
 
 State of the stack when ISR is called
 
+|stack|
+| TOP |
 -------
-| R0  |
--------
-| R1  |
--------
-| R2  |
--------
-| R3  |
+| LR  |
 -------
 | R12 |
 -------
-| LR  |
+| R3  |
+-------
+| R2  |
+-------
+| R1  |
+-------
+| R0  | <- SP
 |     |
 
 
@@ -271,7 +273,7 @@ PCB section:
   4 B - #processes
   4 B - number of a processor running now
   100 B - active PCBs, -1 no active, >= 0 - proc no
-  80 B - first PCB block
+  84 B - first PCB block
 
 In total PCB section = 4 B + 4 B + 4 B * 100 + 80 B * PROC_NO = 8412 B
 

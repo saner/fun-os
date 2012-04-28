@@ -138,8 +138,6 @@ condExpansion (List insts) =
   List $ map condExpansion insts
 condExpansion (DottedList insts inst) = 
   DottedList (map condExpansion insts) (condExpansion inst)
-
--- if was not matched so don't transform instruction
 condExpansion inst = inst 
 
 
@@ -240,14 +238,78 @@ vectorConstructor ls =
     construct vecNo inst = inst
 
 
+-- process
+processDef :: [SchemeInst] -> Integer -> ([SchemeInst], Integer)
+
+processDef (List (Atom "process" : name : body : []) : insts) no = 
+  let newBody = List (Atom "begin" : wrap body)
+      (instsA, noA) = processDef insts (no + 1)
+  in trace (show 3) (List (Atom "define-metal" : name : newBody : [] ) : instsA, noA)
+  where
+    wrap body = 
+      [ List [ Atom "comment", String "prologue start" ],
+        List [ Atom "inline", String "STMFD SP!, {R0}" ],
+        List [ Atom "inline", String "MOV FP, SP" ],
+        List [ Atom "comment", String "prologue end"],
+        List [ Atom "comment", String "process body: start"] ] ++
+      [ body ] ++
+      [ List [ Atom "comment", String "process body: end" ],
+        List [ Atom "comment", String "epilog start" ],
+        List [ Atom "comment", String "estore process no" ],
+        List [ Atom "inline", String "MOV SP, FP" ],
+        List [ Atom "inline", String "LDMFD SP!, {R9}" ],
+        List [ Atom "comment", String "epilog end" ],
+        List [ Atom "comment", String "disable interrupts" ],
+        List [ Atom "inline", String "LDR R5, REG_IME" ],
+        List [ Atom "inline", String "MOV R6, #0" ],
+        List [ Atom "inline", String "LDR R7, [R5]" ],
+        List [ Atom "inline", String "STR R6, [R5]" ],
+        List [ Atom "comment", String "remove process" ],
+        List [ Atom "comment", String "it should be enough" ],
+        List [ Atom "comment", String "scheduler won't select this process" ],
+        List [ Atom "comment", String "because it is removed (no PCB)" ],
+        List [ Atom "inline", String "MOV R0, R9" ],
+        List [ Atom "inline", String "BL remove_process" ],
+        List [ Atom "comment", String "this process is running, set active process to -1" ],
+        List [ Atom "comment", String "next time scheduler runs, it will select another process" ],
+        List [ Atom "inline", String "MOV R8, #-1" ],
+        List [ Atom "inline", String "LDR R8, [SL, #8]" ],
+        List [ Atom "comment", String "restore interrupts" ],
+        List [ Atom "inline", String "LDR R5, REG_IME" ],
+        List [ Atom "inline", String "STR R7, [R5]" ],
+        List [ Atom "comment", String "enter infinite loop" ],
+        List [ Atom "comment", String "until scheduler removes this process" ],
+        List [ Atom "inline", String ("sample_inf_loop" ++ (show no) ++ ":") ],
+        List [ Atom "inline", String ("B sample_inf_loop" ++ (show no)) ],
+        List [ Atom "comment", String "process end" ] ]
+
+
+processDef (List insts : rest) no = 
+  let (instsA, noA) = processDef insts no 
+      (restA, noR) = processDef rest noA
+  in (List instsA : restA, noR)
+
+processDef (DottedList insts inst : rest) no = 
+  let (instsA, noA) = processDef insts no
+      (instA, inoA) = processDef [inst] noA
+      instAA = List [ Atom "begin", List instA]
+      (restA, noR) = processDef rest inoA
+  in (DottedList instsA instAA : restA, noR)
+
+processDef inst no = (inst, no)
+
+processDefs insts =
+  let (instsA, noA) = processDef insts 0
+  in instsA
 
 -- running pre-compiler
 preCompileCode :: [SchemeInst] -> [SchemeInst]
 preCompileCode [] = []
 preCompileCode code =
   let code1 = map condExpansion code
-      code2 = declCFun code1
-      code3 = globalFun code2
+      code2 = processDefs code1
+      code3 = declCFun code2
       code4 = listExpansion code3
       code5 = vectorConstructor code4
-  in code5
+      code6 = globalFun code5
+  in code6

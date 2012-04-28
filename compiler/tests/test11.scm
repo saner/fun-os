@@ -20,7 +20,7 @@
 (comment "declarations of global functions")
 (global-fun scheme-entry)
 
-(assembler (scheme-entry mem_addr mem_size)
+(assembler (scheme-entry mem-addr mem-size)
   (comment "prologue start")
   (STMFD SP!, {LR})
   (STMFD SP!, {R4, R5, R6, R7, R8, R9})
@@ -44,30 +44,11 @@
   (comment "interrupts")
   (BL initialize_interrupts)
 
-  (MOV R0, #-33)
-  (BL print_int)
-  (MOV R0, PC)
-  (BL print_int)
-  (MOV R0, #-33)
-  (BL print_int)
-  (MOV R0, SP)
-  (BL print_int)
-  (MOV R0, #0)
-  (MOV R1, #1)
-  (MOV R2, #2)
-  (MOV R3, #3)
-  (MOV R4, #4)
-  (MOV R5, #5)
-  (MOV R6, #6)
-  (MOV R7, #7)
-  (MOV R8, #8)
-  (MOV R9, #9)
-  (MOV R12, #12)
-  (loop1:)
-  (B loop1)
-
   (comment "run code")
-  (BL internal_scheme_entry)
+  (BL user_code)
+
+  (scheme_entry_loop:)
+  (B scheme_entry_loop)
 
   (comment "epilog start")
   (MOV SP, FP)
@@ -110,12 +91,6 @@
   (B active_proc_loop)
   (active_proc_end:)
 
-  (comment "add idle process")
-  (ADR R0, idle_process)
-  (BL add_process)
-
-  (comment "start idle process")
-  (comment "idle proc number in R0")
   (comment "add idle process")
   (ADR R0, idle_process)
   (BL add_process)
@@ -317,9 +292,13 @@
   (MUL R6, R1, R6)
   (ADD R6, R6, R7)
   (STR R6, [R0, #56])
+  (comment "FP reg")
+  (STR R6, [R0, #48])
   (comment "PC reg")
   (ADD R8, R9, #4)
   (STR R8, [R0, #64])
+  (comment "in R0 proc no passed to process")
+  (STR R5, [R0, #4])
   (comment "other regs not set")
 
   (comment "return proc no")
@@ -384,20 +363,64 @@
   (BX LR)
   (comment "epilog end"))
 
-(assembler (idle-process)
+(process (attt a)
+         (+ 1 2))
 
-  (MOV R0, #0)
-  (MOV R1, #10)
-  (MOV R2, #20)
-  (MOV R3, #30)
-  (MOV R4, #40)
-  (MOV R5, #50)
-  (MOV R6, #60)
-  (MOV R7, #70)
-  (MOV R8, #80)
-  (MOV R9, #90)
-  (MOV R12, #120)
+(process (att2 a)
+         (+ 1 2))
 
+(assembler (sample-process no)
+  (comment "prologue start")
+  (STMFD SP!, {R0})
+  (MOV FP, SP)
+  (comment "prologue end")
+
+
+  (comment "process body: start")
+  (comment "process body: end")
+
+  (comment "epilog start")
+  (comment "restore process no")
+  (MOV SP, FP)
+  (LDMFD SP!, {R9})
+  (comment "epilog end")
+
+  (comment "disable interrupts")
+  (LDR R5, REG_IME)
+  (MOV R6, #0)
+  (LDR R7, [R5])
+  (STR R6, [R5])
+
+  (comment "remove process")
+  (comment "it should be enough")
+  (comment "scheduler won't select this process")
+  (comment "because it is removed (no PCB)")
+  (MOV R0, R9)
+  (BL remove_process)
+  (comment "this process is running, set active process to -1")
+  (comment "next time scheduler runs, it will select another process")
+  (MOV R8, #-1)
+  (LDR R8, [SL, #8])
+
+  (comment "restore interrupts")
+  (LDR R5, REG_IME)
+  (STR R7, [R5])
+
+
+  (comment "enter infinite loop")
+  (comment "until scheduler removes this process")
+  (sample_inf_loop:)
+  (B sample_inf_loop)
+
+  (comment "process end"))
+
+(assembler (idle-process no)
+  (comment "process prologue")
+
+  (comment "process body: start")
+  (comment "process body: end")
+  
+  (comment "enter infinite loop")
   (idle_inf_loop:)
   (B idle_inf_loop)
 
@@ -1019,8 +1042,16 @@
   (LDR R0, [R0])
   (BX LR))
 
-(define (internal-scheme-entry)
-  (test-vector-comp))
+(define (user-code)
+  (begin 
+    (enable-process (add-process first-proc))
+    (enable-process (add-process second-proc))))
+
+(process (first-proc)
+         (print-int 101))
+
+(process (second-proc)
+         (print-int 102))
 
 (define (test-vector-comp)
   (let ((v (vector 1 (vector 10 20) (+ 2 3))))

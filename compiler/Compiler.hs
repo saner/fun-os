@@ -388,7 +388,7 @@ callFun ident args = do
                [ Arm.Comment $ "loading to stack arg " ++ (show $ 4 - length (vn:vns)) ] ++ 
                code
 
-defineFun ident args body = do
+defineFun ident args body metal = do
   -- reset env
   resetEnv
   -- add definitions of function's arguments to environment
@@ -424,22 +424,28 @@ defineFun ident args body = do
   -- remove definitions of function's arguments to environment
   removeFunArgsFromEnv args
 
-  return $ funLabel ++
-           lrDumpC ++
-           nonscratchRegDumpC ++
-           slDumpC ++
-           fpDumpC ++
-           spToFPC ++
-           [ Arm.Comment "body start" ] ++
-           bodyC ++
-           mvValToR0 ++
-           [ Arm.Comment "body end" ] ++
-           fpToSPC ++
-           fpRestC ++
-           slRestC ++
-           nonscratchRegRestC ++
-           lrRestC ++
-           retC
+  return $ if metal
+            then  funLabel ++
+                  [ Arm.Comment "define metal" ] ++
+                  [ Arm.Comment "metal start" ] ++
+                  bodyC ++
+                  [ Arm.Comment "metal end" ]
+            else  funLabel ++
+                  lrDumpC ++
+                  nonscratchRegDumpC ++
+                  slDumpC ++
+                  fpDumpC ++
+                  spToFPC ++
+                  [ Arm.Comment "body start" ] ++
+                  bodyC ++
+                  mvValToR0 ++
+                  [ Arm.Comment "body end" ] ++
+                  fpToSPC ++
+                  fpRestC ++
+                  slRestC ++
+                  nonscratchRegRestC ++
+                  lrRestC ++
+                  retC
 
   where
     compBody body = do
@@ -485,7 +491,16 @@ compile (List (Atom "inline" : String inl : [])) = return ("", Arm.NoReg, [Arm.I
 -- Function
 compile (List (Atom "define" : List (Atom name : args) : body : [])) = do
   let argNames = unArgs args
-  funCode <- defineFun name argNames body
+  funCode <- defineFun name argNames body False
+  return ("", Arm.NoReg, funCode)
+
+  where
+    unArgs [] = []
+    unArgs (Atom atom : args) = [ atom ] ++ unArgs args
+
+compile (List (Atom "define-metal" : List (Atom name : args) : body : [])) = do
+  let argNames = unArgs args
+  funCode <- defineFun name argNames body True
   return ("", Arm.NoReg, funCode)
 
   where
@@ -525,7 +540,14 @@ compile (List (Atom "quote" : List [] : [])) = do
 -- Variable
 compile (Atom varName) = do
   (reg, code) <- loadVarToRegister varName Nothing []
-  return (varName, reg, code)
+  if reg == Arm.NoReg
+    -- !!! FIX !!!
+    -- assume var is a name of process
+    then do
+      (_, freeC) <- moveRegToStack Arm.R0
+      return (varName, Arm.R0, freeC ++
+                               [ Arm.Inline $ "ADR R0, " ++ (cleanName varName) ])
+    else return (varName, reg, code)
 
 
 -- sequence of expression
