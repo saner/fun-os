@@ -13,6 +13,4 @@ Todo:
 ------
 
   * Dynamic memory allocation,
-  * Lists, Vectors,
   * Tail recursion,
-  * OS.
