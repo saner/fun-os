@@ -1,3 +1,5 @@
+(global-fun scheme_entry)
+
 (define (scheme_entry)
   (add 0 9 9 9 0 1))
 
@@ -5,5 +7,3 @@
   (+ (if (not (> x0 x1)) (+ x1 (* x1 x0)) (+ x1 (* x1 (+ x1 (* x0 x1)))))
      (+ (+ x1 (* x1 x0)) 
         (+ x1 (* x1 (+ x1 (* x0 x1)))))))
-
-(comment "ret 1 or 2")

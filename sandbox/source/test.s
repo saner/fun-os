@@ -16,6 +16,7 @@
   STACK_SIZE: .word 15360
   @ declarations of C functions
   @ declarations of global functions
+  .type scheme_entry, %function
 scheme_entry:
   @ def:  scheme-entry mem-addr mem-size
   @ prologue start
@@ -49,6 +50,7 @@ scheme_entry:
    BX LR
   @ epilog end
   
+  .type initialize_processes, %function
 initialize_processes:
   @ def:  initialize-processes
   @ prologue start
@@ -93,6 +95,7 @@ initialize_processes:
    BX LR
   @ epilog end
   
+  .type enable_process, %function
 enable_process:
   @ def:  enable-process proc-no
   @ prologue start
@@ -118,6 +121,7 @@ enable_process:
    BX LR
   @ epilog end
   
+  .type disable_process, %function
 disable_process:
   @ def:  disable-process proc-no
   @ prologue start
@@ -143,6 +147,7 @@ disable_process:
    BX LR
   @ epilog end
   
+  .type change_process_state, %function
 change_process_state:
   @ def:  change-process-state proc-no new-state
   @ prologue start
@@ -190,6 +195,7 @@ change_process_state:
    BX LR
   @ epilog end
   
+  .type add_process, %function
 add_process:
   @ def:  add-process proc
   @ prologue start
@@ -283,6 +289,7 @@ add_process:
    BX LR
   @ epilog end
   
+  .type remove_process, %function
 remove_process:
   @ def:  remove-process proc-no
   @ prologue start
@@ -329,6 +336,7 @@ remove_process:
    BX LR
   @ epilog end
   
+  .type attt, %function
 attt:
   @ define metal
   @ metal start
@@ -391,6 +399,7 @@ attt:
   B sample_inf_loop0
   @ process end
   @ metal end
+  .type att2, %function
 att2:
   @ define metal
   @ metal start
@@ -453,6 +462,7 @@ att2:
   B sample_inf_loop1
   @ process end
   @ metal end
+  .type sample_process, %function
 sample_process:
   @ def:  sample-process no
   @ prologue start
@@ -490,6 +500,7 @@ sample_process:
    B sample_inf_loop
   @ process end
   
+  .type idle_process, %function
 idle_process:
   @ def:  idle-process no
   @ process prologue
@@ -500,6 +511,7 @@ idle_process:
    B idle_inf_loop
   @ process end
   
+  .type idle_process_2, %function
 idle_process_2:
   @ def:  idle-process-2
    MOV R0, #0
@@ -517,6 +529,7 @@ idle_process_2:
    B idle_2_inf_loop
   @ process end
   
+  .type initialize_interrupts, %function
 initialize_interrupts:
   @ def:  initialize-interrupts
   @ prologue start
@@ -564,6 +577,7 @@ initialize_interrupts:
    BX LR
   @ epilog end
   
+  .type interrupt_handler, %function
 interrupt_handler:
   @ def:  interrupt-handler
   @ prologue start
@@ -596,6 +610,7 @@ interrupt_handler:
    BL print_int
    BL select_process
    MOV R9, R0
+   LSR R0, #3
    BL print_int
    MOV R0, R9
    BL run_process
@@ -610,6 +625,7 @@ interrupt_handler:
    BX LR
   @ epilog end
   
+  .type run_process, %function
 run_process:
   @ def:  run-process no
   @ it is called from interrupt handler
@@ -797,6 +813,7 @@ run_process:
    STR R0, [SL, #8]
    run_proc_end:
   
+  .type select_process, %function
 select_process:
   @ def:  select-process
   @ it is called from interrupt handler
@@ -866,6 +883,7 @@ select_process:
    BX LR
   @ epilog end
   
+  .type alloc_mem, %function
 alloc_mem:
   @ def:  alloc-mem mem_size
   @ allocates specified memory size on the heap
@@ -890,6 +908,7 @@ alloc_mem:
    BX LR
   
   @ vector
+  .type make_vector, %function
 make_vector:
   @ def:  make-vector len
   @ constructs a vector
@@ -926,6 +945,7 @@ make_vector:
    BX LR
   @ epilog end
   
+  .type vector_ref, %function
 vector_ref:
   @ def:  vector-ref v k
   @ returns element of a vector
@@ -956,6 +976,7 @@ vector_ref:
    BX LR
   @ epilog end
   
+  .type vector_setEM, %function
 vector_setEM:
   @ def:  vector-set! v k obj
   @ sets element of a vector
@@ -986,6 +1007,7 @@ vector_setEM:
    BX LR
   @ epilog end
   
+  .type vector_length, %function
 vector_length:
   @ def:  vector-length v
   @ returns length of a vector
@@ -995,6 +1017,7 @@ vector_length:
    LDR R0, [R0]
    BX LR
   
+  .type vectorQM, %function
 vectorQM:
   @ def:  vector? v
   @ checks if x is a vector
@@ -1007,6 +1030,7 @@ vectorQM:
    BX LR
   
   @ cons
+  .type cons, %function
 cons:
   @ def:  cons c1 c2
   @ constructs cons
@@ -1043,6 +1067,7 @@ cons:
    BX LR
   @ epilog end
   
+  .type pairQM, %function
 pairQM:
   @ def:  pair? a
   @ checks if x is a pair
@@ -1054,6 +1079,7 @@ pairQM:
    MOVNE R0, #4
    BX LR
   
+  .type car, %function
 car:
   @ def:  car c
   @ returns car of cons
@@ -1063,6 +1089,7 @@ car:
    LDR R0, [R0]
    BX LR
   
+  .type cdr, %function
 cdr:
   @ def:  cdr c
   @ returns cdr of cons
@@ -1073,6 +1100,7 @@ cdr:
    LDR R0, [R0]
    BX LR
   
+  .type user_code, %function
 user_code:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -1126,6 +1154,7 @@ user_code:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type first_proc, %function
 first_proc:
   @ define metal
   @ metal start
@@ -1177,6 +1206,7 @@ first_proc:
   B sample_inf_loop2
   @ process end
   @ metal end
+  .type second_proc, %function
 second_proc:
   @ define metal
   @ metal start
@@ -1228,6 +1258,7 @@ second_proc:
   B sample_inf_loop3
   @ process end
   @ metal end
+  .type test_vector_comp, %function
 test_vector_comp:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -1568,6 +1599,7 @@ test_vector_comp:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_vector_literal, %function
 test_vector_literal:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -1913,6 +1945,7 @@ test_vector_literal:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_vector_simp, %function
 test_vector_simp:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -2011,6 +2044,7 @@ test_vector_simp:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_list_exp_2, %function
 test_list_exp_2:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -2179,6 +2213,7 @@ test_list_exp_2:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_list_exp, %function
 test_list_exp:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -2300,6 +2335,7 @@ test_list_exp:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_cons_complex, %function
 test_cons_complex:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -2393,6 +2429,7 @@ test_cons_complex:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_let_2, %function
 test_let_2:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -2725,6 +2762,7 @@ test_let_2:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_let, %function
 test_let:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -2772,6 +2810,7 @@ test_let:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_vector_init, %function
 test_vector_init:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -2857,6 +2896,7 @@ test_vector_init:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_vector, %function
 test_vector:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -3415,6 +3455,7 @@ test_vector:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_cons_init, %function
 test_cons_init:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -3550,6 +3591,7 @@ test_cons_init:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_cons, %function
 test_cons:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -3751,6 +3793,7 @@ test_cons:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type test_cons_2_init, %function
 test_cons_2_init:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -4052,6 +4095,7 @@ test_cons_2_init:
   @ dtcm section has 16KB
   @ One fun frame takes 52 bytes = 13 variables * 4 bytes
   @ the function is called 242 times, the whole stack is 12584 bytes
+  .type dtcm_stack_size, %function
 dtcm_stack_size:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -4104,6 +4148,7 @@ dtcm_stack_size:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type power6, %function
 power6:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -4217,6 +4262,7 @@ power6:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type power, %function
 power:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -4345,6 +4391,7 @@ power:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type poweri, %function
 poweri:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -4365,6 +4412,7 @@ poweri:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type power2, %function
 power2:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -4487,6 +4535,7 @@ power2:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type scheme_entry2, %function
 scheme_entry2:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -4635,6 +4684,7 @@ scheme_entry2:
   LDMFD SP!, {R4, R5, R6, R7, R8, R9}
   LDMFD SP!, {LR}
   BX LR
+  .type print, %function
 print:
   STMFD SP!, {LR}
   STMFD SP!, {R4, R5, R6, R7, R8, R9}
@@ -5231,6 +5281,7 @@ print:
   @ ret 15
   @ ASSEMBLER
   @ EQUALITY
+  .type eqQM, %function
 eqQM:
   @ def:  eq? a b
   @ equality, compares addresses
@@ -5241,6 +5292,7 @@ eqQM:
    BX LR
   
   @ Atom types predicates
+  .type atomQM, %function
 atomQM:
   @ def:  atom? a
   @ checks if x is an atom
@@ -5252,6 +5304,7 @@ atomQM:
    MOVNE R0, #4
    BX LR
   
+  .type numberQM, %function
 numberQM:
   @ def:  number? x
   @ checks if x is a number
@@ -5263,6 +5316,7 @@ numberQM:
    MOVNE R0, #4
    BX LR
   
+  .type booleanQM, %function
 booleanQM:
   @ def:  boolean? x
   @ checks if x is boolean
@@ -5275,6 +5329,7 @@ booleanQM:
    BX LR
   
   @ Reference types predicates
+  .type referenceQM, %function
 referenceQM:
   @ def:  reference? a
   @ checks if x is reference
@@ -5287,6 +5342,7 @@ referenceQM:
    BX LR
   
   @ C functions wrappers
+  .type print_int_c_wrapper, %function
 print_int_c_wrapper:
   @ def:  print_int_c_wrapper
   @ body
@@ -5297,6 +5353,7 @@ print_int_c_wrapper:
    LDMFD SP!, {LR}
    BX LR
   
+  .type print_bool_c_wrapper, %function
 print_bool_c_wrapper:
   @ def:  print_bool_c_wrapper
   @ body

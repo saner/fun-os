@@ -534,6 +534,7 @@
   (BL print_int)
   (BL select_process)
   (MOV R9, R0)
+  (LSR R0, #3)
   (BL print_int)
   (MOV R0, R9)
   (BL run_process)

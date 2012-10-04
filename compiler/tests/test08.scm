@@ -1,3 +1,5 @@
+(global-fun scheme-entry)
+
 (define (scheme_entry)
   (add 0 1 2 3 4 5))
 

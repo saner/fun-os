@@ -4,7 +4,7 @@ import Control.Monad
 import Control.Monad.State
 import Data.List
 import qualified Data.Map as Map
-import Maybe
+import Data.Maybe
 import Debug.Trace
 
 

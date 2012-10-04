@@ -14,9 +14,9 @@ int scheme_entry(void* mem_addr, int mem_size);
 
 int main(void)
 {
-	consoleDemoInit();
+  consoleDemoInit();
 
-	iprintf("Phase#01 Sandbox\n");
+  iprintf("Phase#01 Sandbox\n");
 
   // run scheme
   // allocate 3.5MB memory for scheme
@@ -35,10 +35,10 @@ int main(void)
 
   int taggedResult = scheme_entry(scheme_memory, memory_size);
   int result = taggedResult >> 3;
-	iprintf("scheme_entry returned: %i", result);
 
-	while(1) {
-		swiWaitForVBlank();
-	}
+  iprintf("scheme_entry returned: %i", result);
 
+  while(1) {
+    swiWaitForVBlank();
+  }
 }

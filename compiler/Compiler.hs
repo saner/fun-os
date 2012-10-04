@@ -4,7 +4,7 @@ import Control.Monad
 import Control.Monad.State
 import Data.List
 import qualified Data.Map as Map
-import Maybe
+import qualified Data.Maybe as Maybe
 import Debug.Trace
 
 
@@ -425,12 +425,14 @@ defineFun ident args body metal = do
   removeFunArgsFromEnv args
 
   return $ if metal
-            then  funLabel ++
+            then  [ Arm.Inline $ ".type " ++ (cleanName ident) ++ ", %function" ] ++
+                  funLabel ++
                   [ Arm.Comment "define metal" ] ++
                   [ Arm.Comment "metal start" ] ++
                   bodyC ++
                   [ Arm.Comment "metal end" ]
-            else  funLabel ++
+            else  [ Arm.Inline $ ".type " ++ (cleanName ident) ++ ", %function" ] ++
+                  funLabel ++
                   lrDumpC ++
                   nonscratchRegDumpC ++
                   slDumpC ++
@@ -797,6 +799,7 @@ compile (List (Atom "assembler" : blocks )) = do
   let body = drop 1 blocks
   bodyC <- comp body
   return ("", Arm.NoReg, 
+          [ Arm.Inline $ ".type " ++ (cleanName funName) ++ ", %function" ] ++
           [ Arm.Label $ cleanName funName ] ++
           [ Arm.Comment $ "def: " ++ funDecl ] ++
           bodyC)
@@ -812,7 +815,7 @@ compile (List (Atom "assembler" : blocks )) = do
       return $ instSt : restSt
 
  
--- compile directly function in assembler
+-- let block
 compile (List (Atom "let" : List varBlock : codeBlock : [] )) = do
   varBlockC <-compileVarBlock varBlock
   (codeBlockVar, codeBlockReg, codeBlockC) <- compileCodeBlock codeBlock
