@@ -288,7 +288,7 @@
   (MOV R2, #0b11111)
   (STR R2, [R0, #20])
 
-  (comment "reg block")
+  ( comment "reg block")
   (ADD R0, R0, #20)
   (comment "SL reg")
   (STR SL, [R0, #44])

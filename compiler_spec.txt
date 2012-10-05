@@ -238,11 +238,12 @@ Maximum 100 processes, each has 15 KB stack
 PROC_NO = 100
 PROC_STACK_SIZE = 15 KB
 
-SL (r12) points to C stack beginning which is in DTCM memory
+SP - current stack position
 
+SL - dtcm beginning
 [SL] - current heap position
 
-SL + 4 - PCB segment
+[SL + 4] - beginning of PCB section
 
 =====================
 Interrupts
@@ -270,12 +271,15 @@ State of the stack when ISR is called
 Processes
 
 PCB section:
-  4 B - #processes
-  4 B - number of a processor running now
-  100 B - active PCBs, -1 no active, >= 0 - proc no
+  [SL + 4] - #processes
+  [SL + 8] - number of a processor running now
+  [SL + 12] - active PCBs #1, -1 no active, >= 0 - proc no
+  [SL + 16] - active PCBs #2, -1 no active, >= 0 - proc no
+  ...
+  [SL + 408] - active PCBs #100, -1 no active, >= 0 - proc no
   84 B - first PCB block
 
-In total PCB section = 4 B + 4 B + 4 B * 100 + 80 B * PROC_NO = 8412 B
+In total PCB section = 4 B + 4 B + 4 B * 100 + 84 B * PROC_NO = 8808 B
 
 PCB block:
   4 B - process no
@@ -284,6 +288,8 @@ PCB block:
   4 B - process state
   4 B - CPSR
   64 B - registers ( 16 registers * 4 B )
+  --
+  84 B
 
 Process priority:
   0 - system process

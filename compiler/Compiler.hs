@@ -808,6 +808,9 @@ compile (List (Atom "assembler" : blocks )) = do
     comp (List (Atom "comment" : String cm : []) : rest ) = do
       restSt <- comp rest
       return $ Arm.Comment cm : restSt
+    comp (List (Atom "#" : args) : rest ) = do
+      restSt <- comp rest
+      return $ Arm.Comment ("# " ++ (show args)) : restSt
     comp (List inst:rest) = do
       let unInst = map (\(Atom a) -> a) inst
       let instSt = Arm.Inline $ foldl (\s a -> s ++ " " ++ a) "" unInst
@@ -840,6 +843,10 @@ compile (List (Atom "let" : List varBlock : codeBlock : [] )) = do
       
       
 
+
+-- comment
+compile (List (Atom "#" : args)) = do
+  return ("", Arm.NoReg, [])
 
 -- If it was not recognized it must be a function
 compile (List (Atom name : args)) = do
