@@ -4,6 +4,7 @@ import Prelude
 import Control.Monad
 import Control.Monad.State
 import System.Environment
+import System.IO
 import System.IO.Unsafe
 
 import qualified Data.Map as Map
@@ -47,31 +48,10 @@ testARMShow = do
   putStrLn $ show $ Comment "Test comment!!!"
 
 
--- printing nicely generated code
-formatCompCode ([]) = ""
-formatCompCode (code:rest) =
-  let codeF = case code of
-                Label l -> line (show code)
-                Special s -> indentLine (show code)
-                _ -> indentLine (show code)
-  in codeF ++ (formatCompCode rest)
-
-  where
-    indentLine l = "  " ++ l ++ "\n"
-    line l = l ++ "\n"
-  
 -- main running function
 main :: IO()
 main = do
   -- testARMShow
-  -- args <- getArgs
-  -- let codeStr = args !! 0
-  let codeSource = unsafePerformIO getContents
-  case parseCode codeSource of
-    Left error -> putStrLn $ "Error, parsing: \n" ++ show error
-    Right code -> do
-      --putStrLn $ show code
-      let preCompiledCode = preCompileCode code
-      --putStrLn $ show preCompiledCode
-      let compCode = evalState (compileCode preCompiledCode) (Map.fromList [], Map.fromList [], 0, (-1, -1))
-      putStrLn $ formatCompCode compCode
+  args <- getArgs
+  let fileName = args !! 0
+  compileFile fileName

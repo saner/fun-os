@@ -855,7 +855,11 @@ compile (List []) = do
 
 compile (EmptyVal) = do
   return ("", Arm.NoReg, [])
-      
+
+compile inst = do
+  return ("", Arm.NoReg, [Arm.Comment $ "not recognised: " ++ (show inst)])
+
+
 
 -- Basic binary operations
 compileBinOp :: (Arm.Register -> Arm.Register -> Arm.Register -> ArmCode) -> 
@@ -1008,7 +1012,4 @@ compileCode body = do
 -- for-each: (for-each (lambda (x) (set! sum (+ sum x))) '(1 2 3 4))
 --------------------------------------------------------------------------------
 -- Errors and limitations
-
--- deep nesting won't compile correctly
--- (* 2 (* 2 (* 2 (+ 1 (+ 3)))))
 

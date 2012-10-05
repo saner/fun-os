@@ -6,12 +6,18 @@ import Data.List
 import qualified Data.Map as Map
 import Data.Maybe
 import Debug.Trace
+import System.Directory
 
 
 import qualified ArmInstructions as Arm
 import SchemeDataTypes
 import CompUtils
+import Compiler
+import Parser
 
+import System.IO
+import System.IO.Unsafe
+import System.FilePath
 
 updateReg = True
 -- scanning for c function declarations
@@ -176,9 +182,80 @@ globalFun code =
          funsCode ++
          insts)
   where
-    genFun funName = 
+    genFun funName =
       List (Atom "inline" : String (".global " ++ (cleanName funName)) : [])
 
+
+-- includeFile
+findRemoveIncludeFile :: String -> SchemeInst -> [SchemeInst]
+
+findRemoveIncludeFile srcFile (List (Atom "include" : String fileName : [])) =
+  let fullPath = makePath srcFile fileName
+      code = parseCode $ unsafePerformIO $ readFile fullPath
+  in case code of
+      Left error ->
+        [List [ Atom "comment", String $ "include file: " ++ fileName ++ " errror !! " ++ (show error)  ]]
+      Right parsed ->
+        let preCompiled = preCompileCode fileName parsed
+        in [List [ Atom "comment", String $ "----------------------------------------" ]] ++
+           [List [ Atom "comment", String $ "start include file: " ++ fileName  ]] ++
+           preCompiled ++
+           [List [ Atom "comment", String $ "end include file: " ++ fileName  ]] ++
+           [List [ Atom "comment", String $ "----------------------------------------" ]]
+
+findRemoveIncludeFile srcFile (List insts) = 
+  let instsNew = List $ concat $ map (findRemoveIncludeFile srcFile) insts
+  in [ instsNew ]
+
+findRemoveIncludeFile srcFile (DottedList insts inst) =
+  let instsNew = concat $ map (findRemoveIncludeFile srcFile) insts
+      instNew = List $ findRemoveIncludeFile srcFile inst
+  in [ DottedList instsNew instNew ]
+
+findRemoveIncludeFile _ inst = [ inst ]
+
+includeFile :: String -> [SchemeInst] -> [SchemeInst]
+includeFile srcFile code =
+  let codeNew = concat $ map (findRemoveIncludeFile srcFile) code
+  in codeNew
+
+
+-- loadFile
+findRemoveLoadFile :: SchemeInst -> (SchemeInst, [String])
+
+findRemoveLoadFile (List (Atom "load" : String fileName : [])) =
+  (List [ Atom "comment", String $ "load file: " ++ fileName  ], [ fileName ])
+
+findRemoveLoadFile (List insts) = 
+  let instsDecls = map findRemoveLoadFile insts
+      frInsts = List $ map fst instsDecls
+      frFiles = concat $ map snd instsDecls
+  in (frInsts, frFiles)
+
+findRemoveLoadFile (DottedList insts inst) = 
+  let instsFiles = map findRemoveLoadFile insts
+      instFile = findRemoveLoadFile inst
+      frInsts = DottedList (map fst instsFiles) (fst instFile)
+      frFiles = (concat $ map snd instsFiles) ++ (snd instFile)
+  in (frInsts, frFiles)
+
+
+-- if was not matched so don't transform instruction
+findRemoveLoadFile inst = (inst, []) 
+
+makePath :: String -> String -> String
+makePath origFile newFile =
+  let srcFile = takeDirectory origFile
+      fullsrcFile = unsafePerformIO $ canonicalizePath $ combine srcFile newFile
+  in fullsrcFile
+
+loadFile :: String -> [SchemeInst] -> IO [SchemeInst]
+loadFile srcFile code = do
+  let instsFiles = map findRemoveLoadFile code
+  let insts = map fst instsFiles
+  let files = map (makePath srcFile) (concat $ map snd instsFiles)
+  mapM compileFile files
+  return insts
 
 -- expand list construct
 -- (list 1 2 3 4)
@@ -303,13 +380,49 @@ processDefs insts =
   in instsA
 
 -- running pre-compiler
-preCompileCode :: [SchemeInst] -> [SchemeInst]
-preCompileCode [] = []
-preCompileCode code =
+preCompileCode :: String -> [SchemeInst] -> [SchemeInst]
+preCompileCode _ [] = []
+preCompileCode srcFile code =
   let code1 = map condExpansion code
       code2 = processDefs code1
       code3 = declCFun code2
       code4 = listExpansion code3
       code5 = vectorConstructor code4
       code6 = globalFun code5
-  in code6
+      code7 = unsafePerformIO $ loadFile srcFile code6
+      code8 = includeFile srcFile code7
+  in code8
+
+
+-- printing nicely generated code
+formatCompCode ([]) = ""
+formatCompCode (code:rest) =
+  let codeF = case code of
+                Arm.Label l -> line (show code)
+                Arm.Special s -> indentLine (show code)
+                _ -> indentLine (show code)
+  in codeF ++ (formatCompCode rest)
+
+  where
+    indentLine l = "  " ++ l ++ "\n"
+    line l = l ++ "\n"
+
+compile :: String -> String -> Either String [Arm.ArmInstruction]
+compile srcFile code = do
+  case parseCode code of
+    Left error -> Left ("Error, parsing: \n" ++ show error)
+    Right code -> do
+      let preCompiledCode = preCompileCode srcFile code
+      let compiled = evalState (compileCode preCompiledCode) (Map.fromList [], Map.fromList [], 0, (-1, -1))
+      Right compiled
+
+compileFile fileName = do
+  fullsrcFile <- canonicalizePath fileName 
+  let outputFileName = replaceExtension fullsrcFile ".s"
+  contents <- readFile fullsrcFile
+
+  let compiled = PreCompiler.compile fullsrcFile contents
+  case compiled of
+    Left str -> putStrLn str
+    Right insts ->
+       writeFile outputFileName $ formatCompCode insts
