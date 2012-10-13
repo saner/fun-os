@@ -226,6 +226,13 @@
   (MOV FP, SP)
   (comment "prologue end")
 
+  (comment "disable interrupts, REG_IME = 0")
+  (LDR R5, REG_IME)
+  (LDR R7, [R5])
+  (STMFD SP!, {R7})
+  (MOV R7, #0)
+  (STR R7, [R5])
+
   (comment "save proc addr")
   (MOV R9, R0)
 
@@ -259,7 +266,7 @@
   (comment "set a proc count")
   (STR R5, [SL, #4])
 
-  (comment "set a new process block no")
+  (comment "set a new process number to block position")
   (STR R5, [R0, R4])
 
   (comment "set PCB block")
@@ -288,7 +295,7 @@
   (MOV R2, #0b11111)
   (STR R2, [R0, #20])
 
-  ( comment "reg block")
+  (comment "reg block")
   (ADD R0, R0, #20)
   (comment "SL reg")
   (STR SL, [R0, #44])
@@ -310,6 +317,11 @@
   (comment "return proc no")
   (MOV R0, R5)
 
+  (comment "restore interrupts state")
+  (LDMFD SP!, {R6})
+  (LDR R5, REG_IME)
+  (STR R6, [R5])
+
   (comment "epilog start")
   (MOV SP, FP)
   (LDMFD SP!, {FP})
@@ -328,6 +340,14 @@
   (STMFD SP!, {FP})
   (MOV FP, SP)
   (comment "prologue end")
+
+  (comment "disable interrupts, REG_IME = 0")
+  (LDR R5, REG_IME)
+  (LDR R7, [R5])
+  (STMFD SP!, {R7})
+  (MOV R7, #0)
+  (STR R7, [R5])
+
 
   (comment "copy proc no")
   (MOV R9, R0)
@@ -360,6 +380,11 @@
   (comment "free PCB block")
   (MOV R2, #-1)
   (STR R2, [R0, R4])
+
+  (comment "restore interrupts state")
+  (LDMFD SP!, {R6})
+  (LDR R5, REG_IME)
+  (STR R6, [R5])
 
   (comment "epilog start")
   (MOV SP, FP)

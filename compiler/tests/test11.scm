@@ -1,7 +1,7 @@
 (include "common.scm")
 
 (load "lib.scm")
-(include "os.scm")
+(load "os.scm")
 
 (process (attt a)
          (+ 1 2))

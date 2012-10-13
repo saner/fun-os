@@ -323,6 +323,7 @@ API:
     initialize-processes - returns process no which should be run
     select-process - returns process no which should be run
     run-process no - save current process and loads process state from PCB block
+    change-process-state - funkcja zmienia stan procesu na inny
 
 
 =====================
