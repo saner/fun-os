@@ -200,6 +200,14 @@ getRegWithNewVar vName restRegs = do
   put (newRegState, newVarState, stackPtr, (newVarNo, lastLblNo))
   return (varName, reg, code)
 
+setVarToReg :: Name -> Arm.Register -> Env ()
+setVarToReg var reg = do
+  (regState, varState, stackPtr, some) <- get
+  let newVarState = Map.insert var (LocReg reg) varState
+  let newRegState = Map.insert reg (Just var) regState
+  put (newRegState, newVarState, stackPtr, some)
+
+
 -- adding fun args
 addFunArgsToEnv :: [Name] -> Env ()
 addFunArgsToEnv args = do
@@ -216,10 +224,7 @@ addFunArgsToEnv args = do
         then return ()
         else do
           let arg = args !! no
-          (regState, varState, stackPtr, some) <- get
-          let newVarState = Map.insert arg (LocReg reg) varState
-          let newRegState = Map.insert reg (Just arg) regState
-          put (newRegState, newVarState, stackPtr, some)
+          setVarToReg arg reg
     addArgToStack args no =
       if no > length args - 1
         then return ()
@@ -309,7 +314,7 @@ inUseReg reg = do
       case var of
         Just _ -> return True
         Nothing -> return False
-      
+
 callFun ident args = do
   -- compile all arguments
   (argsCompNames, argsCompC) <- compArgs args
@@ -543,10 +548,11 @@ compile (List (Atom "quote" : List [] : [])) = do
 compile (Atom varName) = do
   (reg, code) <- loadVarToRegister varName Nothing []
   if reg == Arm.NoReg
-    -- !!! FIX !!!
     -- assume var is a name of process
+    -- used in closures
     then do
       (_, freeC) <- moveRegToStack Arm.R0
+      setVarToReg varName Arm.R0
       return (varName, Arm.R0, freeC ++
                                [ Arm.Inline $ "ADR R0, " ++ (cleanName varName) ])
     else return (varName, reg, code)

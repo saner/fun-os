@@ -326,6 +326,71 @@ API:
     change-process-state - funkcja zmienia stan procesu na inny
 
 
+
+Closures
+----------
+
+0. Lambda is transformed into a closure
+
+closure:
+  [ code ptr | ptr to free var vector ]
+
+
+(lambda (a)
+  (* a b))
+     |
+     | <- transformation
+     |
+     v
+(tag-closure (vector lambda_01 (vector b)))
+
+closure:
+  [ code ptr | [ b ] ]
+
+code:
+  (define (lambda_01 a b)
+    (* a b))
+
+
+PreCompiler compilation steps:
+0. Find lambda declaration
+1. Find free variables
+2. Add free variables at the end of a function argument list
+3. Declare new function with all required arugments
+4. Create closure capturing all free variables
+
+
+1. Running closure
+
+(var01 1)
+
+var01 is treated as a closure if it was declared
+as a variable in a current context, otherwise
+it is treated as a normal function call
+
+(var01 1) - var01 is a closure
+    |
+    | <- transformation
+    |
+    v
+(call-closure var01 1 1)
+               ^    ^ ^
+               |    | |- args
+               |    |--- args count
+               |- closure
+
+
+Functions:
+tag-closure:
+- implemented in assembler
+- expects a vector as a parameter
+- changes tag to closure tag
+
+call-closure:
+- implemented in assembler
+- simple wrapper for calling closure
+
+
 =====================
 Compilation process
 

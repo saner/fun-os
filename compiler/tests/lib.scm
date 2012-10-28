@@ -1,5 +1,113 @@
 (comment "lib")
 
+
+(comment "closure")
+
+(global-fun tag-closure)
+(assembler (tag-closure v)
+  (comment "tag")
+  (LSR R0, #3)
+  (LSL R0, #3)
+  (ORR R0, R0, #3)
+  (BX LR))
+
+(global-fun call-closure)
+(assembler (call-closure closure args-count arg1 arg2)
+  (comment "constructs a vector")
+  (comment "prologue start")
+  (STMFD SP!, {LR})
+  (STMFD SP!, {R4, R5, R6, R7, R8, R9})
+  (STMFD SP!, {SL})
+  (STMFD SP!, {FP})
+  (MOV FP, SP)
+  (comment "prologue end")
+
+  (comment "!!! supporting up to 2 arguments, 1 in closure and 1 passed directly, easy to fix !!!")
+  (comment "R0 - closure")
+  (comment "R1 - args count")
+  (comment "R2 - arg1 optional")
+  (comment "R3 - arg2 optional")
+
+  (comment "save arguments")
+  (MOV R4, R0)
+  (MOV R5, R1)
+  (MOV R6, R2)
+
+  (comment "get function address")
+  (MOV R1, #0)
+  (comment "tag int")
+  (LSL R1, #3)
+  (ORR R1, R1, #2)
+  (BL vector_ref)
+  (MOV R7, R0)
+
+  (comment "get vector with closure parameters")
+  (MOV R0, R4)
+  (MOV R1, #1)
+  (comment "tag int")
+  (LSL R1, #3)
+  (ORR R1, R1, #2)
+  (BL vector_ref)
+  (MOV R8, R0)
+
+  (comment "get count of closure parameters")
+  (BL vector_length)
+  (LSR R0, #3)
+  (MOV R9, R0)
+  (CMP R9, #1)
+  (BNE NO_CMP_CLO_PAR)
+  (comment "there is one parameter, load")
+  (MOV R0, R8)
+  (MOV R1, #0)
+  (comment "tag int")
+  (LSL R1, #3)
+  (ORR R1, R1, #2)
+  (BL vector_ref)
+  (MOV R8, R0)
+
+  (NO_CMP_CLO_PAR:)
+
+  (comment "load parameters to registers")
+
+  (LSR R5, #3)
+  (CMP R5, #1)
+  (BNE NO_NOR_PAR)
+  (comment "there is one normal parameter, load")
+  (MOV R0, R6)
+
+  (comment "load closure param")
+  (CMP R9, #1)
+  (BNE NORM_NO_CLO_PAR)
+  (comment "there is one closure parameter, load")
+  (MOV R1, R8)
+
+  (NORM_NO_CLO_PAR:)
+  (B LOAD_PAR_CALL)
+
+  (NO_NOR_PAR:)
+
+  (comment "load closure param")
+  (CMP R9, #1)
+  (BNE NO_NORM_NO_CLO_PAR)
+  (comment "there is one closure parameter, load")
+  (MOV R0, R8)
+
+  (NO_NORM_NO_CLO_PAR:)
+  (LOAD_PAR_CALL:)
+  (MOV LR, PC)
+  (ADD LR, LR, #8)
+  (MOV PC, R7)
+
+  (comment "epilog start")
+  (MOV SP, FP)
+  (LDMFD SP!, {FP})
+  (LDMFD SP!, {SL})
+  (LDMFD SP!, {R4, R5, R6, R7, R8, R9})
+  (LDMFD SP!, {LR})
+  (BX LR)
+  (comment "epilog end"))
+
+
 (comment "vector")
 
 (global-fun make-vector)
