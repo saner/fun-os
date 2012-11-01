@@ -391,6 +391,18 @@ call-closure:
 - simple wrapper for calling closure
 
 
+call-cc
+--------
+
+Example
+(+ 1 (call-cc (lambda(cc) (2))))
+
+(let ((v (make-vector)))
+     (begin (print-int (call-cc (lambda(c) (begin (vector-set! v c) 1)))))
+            (v 2))
+
+
+
 =====================
 Compilation process
 
